@@ -16,7 +16,7 @@ public class ConnectionManager {
 
     private MainActivity application;
     private FTDriver com;
-    static int BAUDRATE = 7200;
+    static int BAUDRATE = 9600;
 
     public ConnectionManager(MainActivity app){
         this.application = app;
@@ -29,7 +29,7 @@ public class ConnectionManager {
     }
 
     public boolean connect(){
-            if (com.begin(BAUDRATE)) {
+            if (com.begin(9600)) {
                 application.printDebugText("connected");
             } else {
                 application.printDebugText("could not connect");

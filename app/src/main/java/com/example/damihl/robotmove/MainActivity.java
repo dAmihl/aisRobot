@@ -27,8 +27,9 @@ public class MainActivity extends ActionBarActivity {
 
     private void init(){
         this.connectionManager = new ConnectionManager(this);
-        this.controlManager = new ControlManager(connectionManager);
         this.connectionManager.initUSB();
+        this.controlManager = new ControlManager(connectionManager);
+
     }
 
 
@@ -60,11 +61,12 @@ public class MainActivity extends ActionBarActivity {
         }else{
             connectionManager.connect();
         }
+        checkConnection();
     }
 
     public void onButtonMoveClick(View v){
-        if (checkConnection())
-            controlManager.robotDrive((byte) 10);
+         if (checkConnection())
+             controlManager.robotDrive((byte) 10);
     }
 
     public void onButtonMoveBackClick(View v){
@@ -100,7 +102,7 @@ public class MainActivity extends ActionBarActivity {
     public void onButtonDriveSquareClick(View v){
         if (checkConnection()){
             SquareDriveManager man = new SquareDriveManager(controlManager, this);
-            man.driveSquare(20);
+            man.driveSquare(100);
         }
 
 

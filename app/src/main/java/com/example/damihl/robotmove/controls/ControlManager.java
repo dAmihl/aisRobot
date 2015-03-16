@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.hardware.usb.UsbManager;
 
+import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.connection.ConnectionManager;
 
 import jp.ksksue.driver.serial.FTDriver;
@@ -14,10 +15,9 @@ import jp.ksksue.driver.serial.FTDriver;
  */
 public class ControlManager {
 
-    private Activity application;
+    private MainActivity application;
     private FTDriver ftDriver;
     private ConnectionManager con;
-    static int BAUDRATE = 7200;
 
     public ControlManager(ConnectionManager conn){
        this.con = conn;
@@ -55,7 +55,7 @@ public class ControlManager {
 
 
     public void robotDrive(byte distance_cm) {
-        comReadWrite(
+       comReadWrite(
                 new byte[] { 'k', distance_cm, '\r', '\n' }
         );
     }
@@ -76,9 +76,12 @@ public class ControlManager {
 
     public void comWrite(byte[] data) {
         if (ftDriver.isConnected()) {
-            ftDriver.write(data);
+            try{
+                ftDriver.write(data);
+            } catch (Exception e){
+               application.printDebugText(e.toString());
+            }
         } else {
-            // textLog.append("not connected\n");
         }
     }
 
