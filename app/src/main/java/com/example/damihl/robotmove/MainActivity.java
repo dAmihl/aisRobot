@@ -1,7 +1,5 @@
 package com.example.damihl.robotmove;
 
-import android.content.Context;
-import android.hardware.usb.UsbManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -11,12 +9,18 @@ import android.widget.TextView;
 
 import com.example.damihl.robotmove.connection.ConnectionManager;
 import com.example.damihl.robotmove.controls.ControlManager;
-import com.example.damihl.robotmove.paths.SquareDriveManager;
+import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
+import com.example.damihl.robotmove.paths.PathDriveManager;
+
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends ActionBarActivity {
 
     private ConnectionManager connectionManager;
     private ControlManager controlManager;
+    private ObstacleAvoidManager obstacleManager;
+    private PathDriveManager pathManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +33,8 @@ public class MainActivity extends ActionBarActivity {
         this.connectionManager = new ConnectionManager(this);
         this.connectionManager.initUSB();
         this.controlManager = new ControlManager(connectionManager);
-
+        this.obstacleManager = new ObstacleAvoidManager(controlManager, this);
+        this.pathManager = new PathDriveManager(controlManager, this, obstacleManager);
     }
 
 
@@ -101,12 +106,11 @@ public class MainActivity extends ActionBarActivity {
 
     public void onButtonDriveSquareClick(View v){
         if (checkConnection()){
-            SquareDriveManager man = new SquareDriveManager(controlManager, this);
-            man.driveSquare(100);
+            pathManager.driveSquare(100);
         }
-
-
     }
+
+
 
 
 
@@ -118,8 +122,10 @@ public class MainActivity extends ActionBarActivity {
         TextView debugText = (TextView)
                 findViewById(R.id.debugText);
         //debugText.setText(db);
-        debugText.append(db+"\n");
+        debugText.append(new Date()+": "+db+"\n");
     }
+
+
 
     public boolean checkConnection(){
         TextView connection = (TextView) findViewById(R.id.textConnectionStatus);

@@ -69,8 +69,41 @@ public class ControlManager {
         );
     }
 
+    public void robotDriveObstacleSafe(){
+
+    }
 
 
+    public String getSensorData() {
+        String data = comReadWrite(new byte[] { 'q', '\r', '\n' });
+        application.printDebugText("SensorData: "+data);
+        return data;
+    }
+
+
+    public void pause(int ms){
+        try {
+            Thread.sleep(ms);                 //1000 milliseconds is one second.
+        } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+
+
+    public int getSleepTimeRobotDrive(int distance){
+        int waitTimeMove = 1000 * distance / 20;
+        return waitTimeMove;
+    }
+
+    public int getSleepTimeRobotTurn(int degrees){
+        int waitTimeTurn = 1000;
+        return waitTimeTurn;
+    }
+
+    public int computeCorrectDegree(int degrees){
+        return (int)(degrees * 1.1);
+    }
 
 
 
