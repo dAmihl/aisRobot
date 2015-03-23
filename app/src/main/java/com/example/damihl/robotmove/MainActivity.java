@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.example.damihl.robotmove.connection.ConnectionManager;
 import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
+import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.paths.PathDriveManager;
 
 import java.util.Calendar;
@@ -21,6 +22,7 @@ public class MainActivity extends ActionBarActivity {
     private ControlManager controlManager;
     private ObstacleAvoidManager obstacleManager;
     private PathDriveManager pathManager;
+    private OdometryManager odometryManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +34,14 @@ public class MainActivity extends ActionBarActivity {
     private void init(){
         this.connectionManager = new ConnectionManager(this);
         this.connectionManager.initUSB();
-        this.controlManager = new ControlManager(connectionManager);
+        this.odometryManager = new OdometryManager(this);
+        this.controlManager = new ControlManager(connectionManager, odometryManager);
         this.obstacleManager = new ObstacleAvoidManager(controlManager, this);
         this.pathManager = new PathDriveManager(controlManager, this, obstacleManager);
+
+       // this.odometryManager.initOdoThread(this, controlManager);
+
+
     }
 
 
@@ -70,8 +77,13 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onButtonMoveClick(View v){
-         if (checkConnection())
-             controlManager.robotDrive((byte) 10);
+        if (checkConnection()){
+            printDebugText("driving");
+            controlManager.robotSetVelocity((byte) 15,(byte) 15);
+            odometryManager.startOdometry(controlManager, this);
+        }
+       //  if (checkConnection())
+       //      controlManager.robotDrive((byte) 10);
     }
 
     public void onButtonMoveBackClick(View v){
@@ -106,7 +118,8 @@ public class MainActivity extends ActionBarActivity {
 
     public void onButtonDriveSquareClick(View v){
         if (checkConnection()){
-            pathManager.driveSquare(100);
+            //pathManager.driveSquare(100);
+            pathManager.driveSquareObstacleSafe(100);
         }
     }
 
@@ -122,7 +135,8 @@ public class MainActivity extends ActionBarActivity {
         TextView debugText = (TextView)
                 findViewById(R.id.debugText);
         //debugText.setText(db);
-        debugText.append(new Date()+": "+db+"\n");
+        //debugText.append(new Date()+": "+db+"\n");
+        debugText.append(db+"\n");
     }
 
 

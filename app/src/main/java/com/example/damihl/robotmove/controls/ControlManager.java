@@ -6,6 +6,7 @@ import android.hardware.usb.UsbManager;
 
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.connection.ConnectionManager;
+import com.example.damihl.robotmove.odometry.OdometryManager;
 
 import jp.ksksue.driver.serial.FTDriver;
 
@@ -16,11 +17,15 @@ import jp.ksksue.driver.serial.FTDriver;
 public class ControlManager {
 
     private MainActivity application;
+    private OdometryManager odometryManager;
     private FTDriver ftDriver;
     private ConnectionManager con;
 
-    public ControlManager(ConnectionManager conn){
+    public boolean ROBOT_MOVING = false;
+
+    public ControlManager(ConnectionManager conn, OdometryManager odo){
        this.con = conn;
+        this.odometryManager = odo;
        this.ftDriver = this.con.getDriver();
     }
 
@@ -37,6 +42,8 @@ public class ControlManager {
 
 
     public void robotSetVelocity(byte left, byte right) {
+        odometryManager.setAngularVelocities((int) left, (int) right);
+        ROBOT_MOVING = ((int) left != 0 || (int) right != 0);
         comReadWrite(
                 new byte[] { 'i', left, right, '\r', '\n' }
         );
@@ -76,7 +83,6 @@ public class ControlManager {
 
     public String getSensorData() {
         String data = comReadWrite(new byte[] { 'q', '\r', '\n' });
-        application.printDebugText("SensorData: "+data);
         return data;
     }
 

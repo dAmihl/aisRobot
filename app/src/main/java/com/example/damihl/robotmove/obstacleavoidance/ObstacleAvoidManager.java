@@ -18,6 +18,7 @@ public class ObstacleAvoidManager {
 
     public boolean checkObstacle(){
         String sensorData = this.controlManager.getSensorData();
+        application.printDebugText("SensorData: "+sensorData);
         /*if( insert Obstacle checking algorithm based on sensor data here)
         *   return true
         *else */
@@ -39,8 +40,8 @@ public class ObstacleAvoidManager {
                 controlManager.robotSetVelocity((byte) 0, (byte) 0);
             } else {
                 controlManager.robotDrive((byte) SAFE_STEP_SIZE);
+                controlManager.pause(controlManager.getSleepTimeRobotDrive(1));
             }
-            controlManager.pause(controlManager.getSleepTimeRobotDrive(1));
         }
     }
 
