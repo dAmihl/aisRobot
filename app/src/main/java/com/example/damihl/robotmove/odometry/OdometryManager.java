@@ -1,5 +1,6 @@
 package com.example.damihl.robotmove.odometry;
 
+import android.app.Activity;
 import android.os.SystemClock;
 
 import com.example.damihl.robotmove.MainActivity;
@@ -47,8 +48,7 @@ public class OdometryManager {
             @Override
             public void run() {
                 int i = 0;
-                while(control.ROBOT_MOVING || true) {
-                    //appl.printDebugText("odometry update: " + control.ROBOT_MOVING);
+                while(control.ROBOT_MOVING) {
                     if (i < 10) {
                         i++;
                         update();
@@ -60,7 +60,6 @@ public class OdometryManager {
                     }
 
                 }
-                //control.pause((int) dt);
             }
 
         });
@@ -90,7 +89,7 @@ public class OdometryManager {
         y = y + (vRobot * (float) Math.sin(angle));
         angle = angle + (wRobot * dt);
 
-        application.printDebugText("Current Robot position: "+x+"/"+y+"/"+angle);
+        application.threadSafeDebugOutput("Current Robot position: " + x + "/" + y + "/" + angle);
     }
 
     public void setAngularVelocities(float left, float right){

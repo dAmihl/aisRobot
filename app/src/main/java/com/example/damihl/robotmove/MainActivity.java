@@ -81,9 +81,8 @@ public class MainActivity extends ActionBarActivity {
             printDebugText("driving");
             controlManager.robotSetVelocity((byte) 15,(byte) 15);
             odometryManager.startOdometry(controlManager, this);
+            obstacleManager.startObstacleDetection(controlManager, this);
         }
-       //  if (checkConnection())
-       //      controlManager.robotDrive((byte) 10);
     }
 
     public void onButtonMoveBackClick(View v){
@@ -131,6 +130,18 @@ public class MainActivity extends ActionBarActivity {
     /*
     HELPER FUNCTIONS
      */
+
+
+    public void threadSafeDebugOutput(final String db){
+        runOnUiThread(new Runnable(){
+
+            @Override
+            public void run() {
+                printDebugText(db);
+            }
+        });
+    }
+
     public void printDebugText(String db){
         TextView debugText = (TextView)
                 findViewById(R.id.debugText);

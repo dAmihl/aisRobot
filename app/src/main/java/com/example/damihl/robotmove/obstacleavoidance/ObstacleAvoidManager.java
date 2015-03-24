@@ -10,6 +10,7 @@ public class ObstacleAvoidManager {
 
     private ControlManager controlManager;
     private MainActivity application;
+    private Thread obstThread;
 
     public ObstacleAvoidManager(ControlManager control, MainActivity application){
         this.controlManager = control;
@@ -18,12 +19,50 @@ public class ObstacleAvoidManager {
 
     public boolean checkObstacle(){
         String sensorData = this.controlManager.getSensorData();
-        application.printDebugText("SensorData: "+sensorData);
+
+        String arr[] = sensorData.split(" ");
+
+        Long value = Long.parseLong(arr[arr.length-2].substring(2), 16);
+        application.threadSafeDebugOutput("Long value sensor: "+value);
+
+
+        if(arr[arr.length -2].equals("0x1d") || arr[arr.length -2].equals("0x1c") || arr[arr.length -2].equals("0x1e"))
+        {
+            return true;
+        }
+        application.threadSafeDebugOutput("SensorData: "+sensorData);
         /*if( insert Obstacle checking algorithm based on sensor data here)
         *   return true
         *else */
         return false;
     }
+
+    public void initObstThread(final MainActivity appl, final ControlManager control){
+        obstThread = new Thread(new Runnable(){
+
+            @Override
+            public void run() {
+                int i = 0;
+                while(control.ROBOT_MOVING) {
+                    if (checkObstacle()){
+                        appl.threadSafeDebugOutput("obstacle found!");
+                    }
+                }
+            }
+
+        });
+    }
+
+    public void startObstacleDetection(final ControlManager control, final MainActivity appl){
+        try {
+            initObstThread(appl, control);
+            obstThread.start();
+        }catch(Exception e){
+            appl.printDebugText("odometry error: "+e);
+        }
+        appl.printDebugText("odometry started");
+    }
+
 
 
     /*
