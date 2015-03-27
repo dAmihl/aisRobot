@@ -148,6 +148,7 @@ public class MainActivity extends ActionBarActivity {
         //debugText.setText(db);
         //debugText.append(new Date()+": "+db+"\n");
         debugText.append(db+"\n");
+        //debugText.setText(db);
     }
 
 

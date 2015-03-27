@@ -22,11 +22,11 @@ public class ObstacleAvoidManager {
 
         String arr[] = sensorData.split(" ");
 
-        Long value = Long.parseLong(arr[arr.length-2].substring(2), 16);
-        application.threadSafeDebugOutput("Long value sensor: "+value);
+       // Long value = Long.parseLong(arr[arr.length-2].substring(2), 16);
+       // application.threadSafeDebugOutput("Long value sensor: "+value);
 
 
-        if(arr[arr.length -2].equals("0x1d") || arr[arr.length -2].equals("0x1c") || arr[arr.length -2].equals("0x1e"))
+        if(arr[arr.length -3].equals("0x1d") || arr[arr.length -3].equals("0x1c") || arr[arr.length -3].equals("0x1e"))
         {
             return true;
         }
@@ -42,10 +42,15 @@ public class ObstacleAvoidManager {
 
             @Override
             public void run() {
-                int i = 0;
                 while(control.ROBOT_MOVING) {
                     if (checkObstacle()){
                         appl.threadSafeDebugOutput("obstacle found!");
+                        controlManager.robotStop();
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                        appl.threadSafeDebugOutput(e.toString());
                     }
                 }
             }

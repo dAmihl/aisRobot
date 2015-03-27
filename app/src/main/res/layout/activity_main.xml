@@ -60,16 +60,6 @@
         android:clickable="true"
         android:onClick="onButtonConnectClick" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Debug"
-        android:id="@+id/debugText"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:nestedScrollingEnabled="true" />
-
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
@@ -135,10 +125,33 @@
         android:layout_height="wrap_content"
         android:text="Drive Square"
         android:id="@+id/btnDriveSquare"
-        android:layout_above="@+id/debugText"
-        android:layout_centerHorizontal="true"
         android:clickable="true"
         android:onClick="onButtonDriveSquareClick"
-        android:nestedScrollingEnabled="false" />
+        android:nestedScrollingEnabled="false"
+        android:layout_below="@+id/btnStop"
+        android:layout_alignLeft="@+id/btnTurnRight"
+        android:layout_alignStart="@+id/btnTurnRight" />
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView"
+        android:layout_above="@+id/btnConnection"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/btnTurnRight"
+        android:layout_alignEnd="@+id/btnTurnRight"
+        android:layout_below="@+id/btnMoveBack">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Debug"
+            android:id="@+id/debugText"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:nestedScrollingEnabled="true" />
+    </ScrollView>
 
 </RelativeLayout>

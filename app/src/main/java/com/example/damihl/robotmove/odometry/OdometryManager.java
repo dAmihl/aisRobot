@@ -47,17 +47,13 @@ public class OdometryManager {
 
             @Override
             public void run() {
-                int i = 0;
                 while(control.ROBOT_MOVING) {
-                    if (i < 10) {
-                        i++;
                         update();
                         try {
                             Thread.sleep(1000);
                         } catch (Exception e) {
-                            appl.printDebugText(e.toString());
+                            appl.threadSafeDebugOutput(e.toString());
                         }
-                    }
 
                 }
             }

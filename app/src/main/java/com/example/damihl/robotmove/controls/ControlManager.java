@@ -39,6 +39,10 @@ public class ControlManager {
     }
 
 
+    public void robotStop(){
+        robotSetVelocity((byte) 0, (byte) 0);
+    }
+
 
 
     public void robotSetVelocity(byte left, byte right) {
