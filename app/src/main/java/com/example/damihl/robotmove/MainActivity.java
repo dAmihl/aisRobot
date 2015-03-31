@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TabHost;
 import android.widget.TextView;
 
 import com.example.damihl.robotmove.connection.ConnectionManager;
@@ -13,8 +14,6 @@ import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.paths.PathDriveManager;
 
-import java.util.Calendar;
-import java.util.Date;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -27,9 +26,37 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_root);
+
+        initTabs();
         init();
+
     }
+
+    private void initTabs(){
+        TabHost tabHost=(TabHost)findViewById(R.id.tabHost);
+        tabHost.setup();
+
+        TabHost.TabSpec spec1=tabHost.newTabSpec("General");
+        spec1.setContent(R.id.generalTab);
+        spec1.setIndicator("General");
+
+        TabHost.TabSpec spec2=tabHost.newTabSpec("Log");
+        spec2.setIndicator("Log");
+        spec2.setContent(R.id.logTab);
+
+        TabHost.TabSpec spec3=tabHost.newTabSpec("Odometry");
+        spec3.setIndicator("Odometry");
+        spec3.setContent(R.id.odometryTab);
+
+
+        tabHost.addTab(spec1);
+        tabHost.addTab(spec2);
+        tabHost.addTab(spec3);
+
+    }
+
+
 
     private void init(){
         this.connectionManager = new ConnectionManager(this);
@@ -39,10 +66,11 @@ public class MainActivity extends ActionBarActivity {
         this.obstacleManager = new ObstacleAvoidManager(controlManager, this);
         this.pathManager = new PathDriveManager(controlManager, this, obstacleManager);
 
-       // this.odometryManager.initOdoThread(this, controlManager);
+        // this.odometryManager.initOdoThread(this, controlManager);
 
 
     }
+
 
 
     @Override
@@ -164,5 +192,4 @@ public class MainActivity extends ActionBarActivity {
             return false;
         }
     }
-
 }

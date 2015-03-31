@@ -1,12 +1,7 @@
 package com.example.damihl.robotmove.odometry;
 
-import android.app.Activity;
-import android.os.SystemClock;
-
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
-
-import java.util.ResourceBundle;
 
 /**
  * Created by dAmihl on 23.03.15.
