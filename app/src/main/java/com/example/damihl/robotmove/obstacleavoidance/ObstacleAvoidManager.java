@@ -34,7 +34,7 @@ public class ObstacleAvoidManager {
         {
             return true;
         }*/
-        
+
         /*if( insert Obstacle checking algorithm based on sensor data here)
         *   return true
         *else */
