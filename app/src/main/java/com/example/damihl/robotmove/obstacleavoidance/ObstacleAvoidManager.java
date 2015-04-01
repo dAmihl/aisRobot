@@ -21,15 +21,16 @@ public class ObstacleAvoidManager {
         String sensorData = this.controlManager.getSensorData();
 
         String arr[] = sensorData.split(" ");
+        int value = Integer.parseInt(arr[arr.length -3].substring(2,3), 16);
+        application.threadSafeDebugOutput("Value Sensor:"+value);
 
-       // Long value = Long.parseLong(arr[arr.length-2].substring(2), 16);
-       // application.threadSafeDebugOutput("Long value sensor: "+value);
-
-
-        if(arr[arr.length -3].equals("0x1d") || arr[arr.length -3].equals("0x1c") || arr[arr.length -3].equals("0x1e"))
-        {
+        if(value <= 29 ){
             return true;
         }
+        /*if(arr[arr.length -3].equals("0x1d") || arr[arr.length -3].equals("0x1c") || arr[arr.length -3].equals("0x1e"))
+        {
+            return true;
+        }*/
         application.threadSafeDebugOutput("SensorData: "+sensorData);
         /*if( insert Obstacle checking algorithm based on sensor data here)
         *   return true
