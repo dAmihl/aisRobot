@@ -81,6 +81,8 @@ public class OdometryManager {
         angle = angle + (wRobot * dt);
 
         application.threadSafeDebugOutput("Current Robot position: " + x + "/" + y + "/" + angle);
+        application.threadSafeOdometryDataOutput(x, y, angle);
+
     }
 
     public void setAngularVelocities(float left, float right){

@@ -163,6 +163,55 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
+            android:id="@+id/odometryTab"
+            android:orientation="vertical"
+            android:paddingTop="60px"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="X: "
+                android:id="@+id/odometryTextX" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Y: "
+                android:id="@+id/odometryTextY" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Angle: "
+                android:id="@+id/odometryTextAngle" />
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/sensorTab"
+            android:orientation="vertical"
+            android:paddingTop="60px"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Sensordata: "
+                android:id="@+id/sensorText" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:id="@+id/logTab"
             android:orientation="vertical"
             android:paddingTop="60px"
@@ -173,15 +222,11 @@
                 android:layout_height="fill_parent">
 
                 <ScrollView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
                     android:id="@+id/scrollView"
-                    android:layout_above="@+id/btnConnection"
                     android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignRight="@+id/btnTurnRight"
-                    android:layout_alignEnd="@+id/btnTurnRight"
-                    android:layout_below="@+id/btnMoveBack">
+                    android:layout_alignParentStart="true">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -194,22 +239,6 @@
                         android:nestedScrollingEnabled="true" />
                 </ScrollView>
             </RelativeLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/odometryTab"
-            android:orientation="vertical"
-            android:paddingTop="60px"
-            >
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="100px"
-                android:text="This is tab 3"
-                android:id="@+id/txt3"
-                />
-
         </LinearLayout>
     </FrameLayout>
 

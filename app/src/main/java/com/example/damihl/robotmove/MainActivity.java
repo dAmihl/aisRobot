@@ -160,6 +160,52 @@ public class MainActivity extends ActionBarActivity {
      */
 
 
+    public void threadSafeSensorDataOutput(final String[] dataArr){
+        runOnUiThread(new Runnable(){
+
+            @Override
+            public void run() {
+                outputSensorData(dataArr);
+            }
+        });
+    }
+
+
+
+    public void outputSensorData(String[] dataArr){
+        TextView sensorText = (TextView) findViewById(R.id.sensorText);
+        String output = "SensorData: ";
+        for (String s: dataArr){
+            output += s + " // ";
+        }
+        sensorText.setText(output);
+    }
+
+
+
+    public void threadSafeOdometryDataOutput(final float x, final float y, final float angle){
+        runOnUiThread(new Runnable(){
+
+            @Override
+            public void run() {
+                setOdometryData(x, y, angle);
+            }
+        });
+    }
+
+
+    public void setOdometryData(float x, float y, float angle){
+        TextView odometryTextX = (TextView) findViewById(R.id.odometryTextX);
+        TextView odometryTextY = (TextView) findViewById(R.id.odometryTextY);
+        TextView odometryTextAngle = (TextView) findViewById(R.id.odometryTextAngle);
+
+        odometryTextX.setText("X: "+x);
+        odometryTextY.setText("Y: "+y);
+        odometryTextAngle.setText("Angle: "+angle);
+    }
+
+
+
     public void threadSafeDebugOutput(final String db){
         runOnUiThread(new Runnable(){
 
