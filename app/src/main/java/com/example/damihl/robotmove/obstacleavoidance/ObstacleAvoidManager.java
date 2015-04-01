@@ -24,17 +24,17 @@ public class ObstacleAvoidManager {
         int value1 = Integer.parseInt(arr[arr.length -2].substring(2,3), 16);
         int value2 = Integer.parseInt(arr[arr.length -3].substring(2,3), 16);
         int value3 = Integer.parseInt(arr[arr.length -4].substring(2,3), 16);
+        application.threadSafeDebugOutput("SensorData: "+sensorData);
         application.threadSafeDebugOutput("Value Sensor 1: "+value1+" Sensor 2: "+value2+" Sensor 3:"+value3);
 
-
-        /*if(value <= 29 ){
+        /*if(value == 15 ){
             return true;
         }
         /*if(arr[arr.length -3].equals("0x1d") || arr[arr.length -3].equals("0x1c") || arr[arr.length -3].equals("0x1e"))
         {
             return true;
         }*/
-        application.threadSafeDebugOutput("SensorData: "+sensorData);
+        
         /*if( insert Obstacle checking algorithm based on sensor data here)
         *   return true
         *else */
