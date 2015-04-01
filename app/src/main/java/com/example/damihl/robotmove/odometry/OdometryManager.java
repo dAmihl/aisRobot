@@ -2,6 +2,7 @@ package com.example.damihl.robotmove.odometry;
 
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
+import com.example.damihl.robotmove.utils.RobotPosVector;
 
 /**
  * Created by dAmihl on 23.03.15.
@@ -15,11 +16,15 @@ public class OdometryManager {
     private final float r = 4.5f;
     private final float d = 20f;
     public final float dt = 0.1f;
+    public final long sleepTime = 100;
+
+    private boolean hasTarget = false;
+    private RobotPosVector targetPosition = null;
+    private ControlManager controlManager = null;
 
     // current robot position and angle
-    private float angle;
-    private float x;
-    private float y;
+    RobotPosVector currentPosition;
+
 
     //linear velocity
     private float vl;
@@ -33,6 +38,7 @@ public class OdometryManager {
 
 
     public OdometryManager(MainActivity app){
+        currentPosition = new RobotPosVector(0,0,0);
         initState();
         this.application = app;
     }
@@ -44,17 +50,20 @@ public class OdometryManager {
             public void run() {
                 while(control.ROBOT_MOVING) {
                         update();
+                        if (hasTarget){
+                            checkTargetReached();
+                        }
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(sleepTime);
                         } catch (Exception e) {
                             appl.threadSafeDebugOutput(e.toString());
                         }
-
                 }
             }
 
         });
     }
+
 
 
     public void initState(){
@@ -66,7 +75,6 @@ public class OdometryManager {
         wl = 0;
         wRobot = 0;
 
-        angle = 0;
     }
 
     public void update(){
@@ -76,12 +84,11 @@ public class OdometryManager {
         vRobot = (vr + vl)/2;
         wRobot = (vr - vl)/d;
 
-        x = x + (vRobot * (float) Math.cos(angle));
-        y = y + (vRobot * (float) Math.sin(angle));
-        angle = angle + (wRobot * dt);
+        currentPosition.x = currentPosition.x + (vRobot * (float) Math.cos(Math.toRadians(currentPosition.angle)));
+        currentPosition.y = currentPosition.y + (vRobot * (float) Math.sin(Math.toRadians(currentPosition.angle)));
+        currentPosition.angle = currentPosition.angle + (wRobot * dt);
 
-       application.threadSafeDebugOutput("Current Robot position: " + x + "/" + y + "/" + angle);
-       application.threadSafeOdometryDataOutput(x, y, angle);
+       application.threadSafeOdometryDataOutput(currentPosition);
 
     }
 
@@ -101,5 +108,29 @@ public class OdometryManager {
     }
 
 
+    public void setTargetPosition(RobotPosVector target, ControlManager cm){
+        hasTarget = true;
+        this.targetPosition = target;
+        this.controlManager = cm;
+    }
+
+
+    private void checkTargetReached(){
+        if (currentPosition.isAt(targetPosition)){
+            targetReached();
+        }
+    }
+
+    private void targetReached(){
+        hasTarget = false;
+        this.targetPosition = null;
+        controlManager.targetReached();
+        this.controlManager = null;
+    }
+
+
+    public RobotPosVector getCurrentPosition(){
+        return currentPosition;
+    }
 
 }

@@ -12,6 +12,8 @@ public class ObstacleAvoidManager {
     private MainActivity application;
     private Thread obstThread;
 
+    private final static long sleepTime = 100;
+
     public ObstacleAvoidManager(ControlManager control, MainActivity application){
         this.controlManager = control;
         this.application = application;
@@ -24,8 +26,8 @@ public class ObstacleAvoidManager {
         int value1 = Integer.parseInt(arr[arr.length -2].substring(2), 16);
         int value2 = Integer.parseInt(arr[arr.length -3].substring(2), 16);
         int value3 = Integer.parseInt(arr[arr.length -4].substring(2), 16);
-        application.threadSafeDebugOutput("SensorData: "+sensorData);
-        application.threadSafeDebugOutput("Value Sensor 1: "+value1+" Sensor 2: "+value2+" Sensor 3:"+value3);
+        //application.threadSafeDebugOutput("SensorData: "+sensorData);
+       // application.threadSafeDebugOutput("Value Sensor 1: "+value1+" Sensor 2: "+value2+" Sensor 3:"+value3);
 
         /*if(value == 15 ){
             return true;
@@ -34,7 +36,7 @@ public class ObstacleAvoidManager {
         {
             return true;
         }*/
-      application.threadSafeDebugOutput("SensorData: "+sensorData);
+      //application.threadSafeDebugOutput("SensorData: "+sensorData);
       application.threadSafeSensorDataOutput(arr);
         /*if( insert Obstacle checking algorithm based on sensor data here)
         *   return true
@@ -53,7 +55,7 @@ public class ObstacleAvoidManager {
                         controlManager.robotStop();
                     }
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(sleepTime);
                     } catch (Exception e) {
                         appl.threadSafeDebugOutput(e.toString());
                     }

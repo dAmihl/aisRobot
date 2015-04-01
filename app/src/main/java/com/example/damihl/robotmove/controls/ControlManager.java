@@ -3,6 +3,7 @@ package com.example.damihl.robotmove.controls;
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.connection.ConnectionManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
+import com.example.damihl.robotmove.utils.RobotPosVector;
 
 import jp.ksksue.driver.serial.FTDriver;
 
@@ -50,6 +51,35 @@ public class ControlManager {
     }
 
 
+    public void robotMoveTowards(int x, int y){
+        RobotPosVector target = new RobotPosVector(x, y, 0);
+        float angle = odometryManager.getCurrentPosition().angleBetween(target);
+        target.angle = angle;
+        float angleToTurn = odometryManager.getCurrentPosition().angle - angle;
+        robotTurn((byte) angleToTurn);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        odometryManager.getCurrentPosition().angle = angle;
+        odometryManager.setTargetPosition(target, this);
+    }
+
+
+    public void targetReached(){
+        if (odometryManager.getCurrentPosition().x > 1000){
+            returnHome();
+        }else{
+            robotStop();
+        }
+    }
+
+    private void returnHome(){
+        robotMoveTowards(0,0);
+        application.moveStandard();
+
+    }
 
 
     public void robotTurn(byte degree) {

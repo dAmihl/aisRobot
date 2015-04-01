@@ -23,16 +23,18 @@ import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.paths.PathDriveManager;
+import com.example.damihl.robotmove.utils.RobotPosVector;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
-    private static final int NUM_TABS = 4;
+    private static final int NUM_TABS = 5;
 
     private static final Integer FRAGMENT_CONTROL_INDEX = 0;
     private static final Integer FRAGMENT_LOG_INDEX = 1;
     private static final Integer FRAGMENT_ODOMETRY_INDEX = 2;
     private static final Integer FRAGMENT_SENSOR_INDEX = 3;
+    private static final Integer FRAGMENT_COORD_MOVE_INDEX = 4;
 
     private ConnectionManager connectionManager;
     private ControlManager controlManager;
@@ -154,6 +156,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return OdometryFragment.newInstance(position);
             }else if (position == FRAGMENT_SENSOR_INDEX){
                 return SensorFragment.newInstance(position);
+            }else if (position == FRAGMENT_COORD_MOVE_INDEX){
+                return CoordMoveFragment.newInstance(position);
             }else{
                 return PlaceholderFragment.newInstance(position + 1);
             }
@@ -163,7 +167,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 4;
+            return NUM_TABS;
         }
 
         @Override
@@ -178,6 +182,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     return getString(R.string.title_section3).toUpperCase(l);
                 case 3:
                     return getString(R.string.title_section4).toUpperCase(l);
+                case 4:
+                    return getString(R.string.title_section5).toUpperCase(l);
+
             }
             return null;
         }
@@ -252,11 +259,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onButtonMoveClick(View v){
             if (checkConnection()) {
                 printDebugText("driving");
-                controlManager.robotSetVelocity((byte) 15, (byte) 15);
-                odometryManager.startOdometry(controlManager, this);
-                obstacleManager.startObstacleDetection(controlManager, this);
+                moveStandard();
             }
     }
+
+
 
     public void onButtonMoveBackClick(View v){
         if (checkConnection())
@@ -295,8 +302,23 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+   public void onButtonMoveTowardsClick(View v){
+        if (checkConnection()){
+            controlManager.robotMoveTowards(2000,2000);
+            moveStandard();
+        }
+    }
 
 
+    public void startManagers(){
+        odometryManager.startOdometry(controlManager, this);
+        obstacleManager.startObstacleDetection(controlManager, this);
+    }
+
+    public void moveStandard(){
+        controlManager.robotSetVelocity((byte) 15, (byte) 15);
+        startManagers();
+    }
 
 
 
@@ -328,12 +350,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
 
 
-    public void threadSafeOdometryDataOutput(final float x, final float y, final float angle){
+    public void threadSafeOdometryDataOutput(final RobotPosVector v){
         runOnUiThread(new Runnable(){
 
             @Override
             public void run() {
-                setOdometryData(x, y, angle);
+                setOdometryData(v.x, v.y, v.angle);
             }
         });
     }
