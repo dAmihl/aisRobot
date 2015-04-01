@@ -21,7 +21,6 @@ public class ObstacleAvoidManager {
         String sensorData = this.controlManager.getSensorData();
 
         String arr[] = sensorData.split(" ");
-        //int value1 = Integer.parseInt(arr[arr.length -2].substring(2), 16);
         int valueRight = Integer.parseInt(arr[arr.length -5].substring(2), 16);
         int valueMid = Integer.parseInt(arr[arr.length -4].substring(2), 16);
         int valueLeft = Integer.parseInt(arr[arr.length -6].substring(2), 16);
@@ -40,16 +39,6 @@ public class ObstacleAvoidManager {
             application.threadSafeDebugOutput("Obstacle Sensor Right "+valueRight);
             return true;
         }
-        /*if(value == 15 ){
-            return true;
-        }
-        /*if(arr[arr.length -3].equals("0x1d") || arr[arr.length -3].equals("0x1c") || arr[arr.length -3].equals("0x1e"))
-        {
-            return true;
-        }*/
-        /*if( insert Obstacle checking algorithm based on sensor data here)
-        *   return true
-        *else */
         return false;
     }
 
