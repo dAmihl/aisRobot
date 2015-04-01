@@ -4,4 +4,15 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_root">RootActivity</string>
+    <string name="title_activity_tabbed">TabbedActivity</string>
+
+
+    <string name="title_section1">Control</string>
+    <string name="title_section2">Log</string>
+    <string name="title_section3">Odometry</string>
+    <string name="title_section4">Sensor</string>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

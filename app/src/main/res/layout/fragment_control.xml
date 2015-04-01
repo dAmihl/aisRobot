@@ -1,0 +1,143 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.damihl.robotmove.ControlFragment">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Move"
+            android:id="@+id/btnMove"
+            android:onClick="onButtonMoveClick"
+            android:clickable="true"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stop"
+            android:id="@+id/btnStop"
+            android:onClick="onButtonStopClick"
+            android:clickable="true"
+            android:layout_below="@+id/btnMoveBack"
+            android:layout_alignRight="@+id/btnMove"
+            android:layout_alignEnd="@+id/btnMove" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ConnectionInfo: "
+            android:id="@+id/textConnectionInfo"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/btnBarUp"
+            android:layout_toEndOf="@+id/btnBarUp"
+            android:layout_marginTop="49dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="disconnected"
+            android:id="@+id/textConnectionStatus"
+            android:layout_above="@+id/btnConnection"
+            android:layout_toRightOf="@+id/btnMove"
+            android:layout_toEndOf="@+id/btnMove" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dis(connect)"
+            android:id="@+id/btnConnection"
+            android:clickable="true"
+            android:onClick="onButtonConnectClick"
+            android:layout_below="@+id/textConnectionInfo"
+            android:layout_alignLeft="@+id/btnDriveSquare"
+            android:layout_alignStart="@+id/btnDriveSquare" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Turn Left"
+            android:id="@+id/btnTurnLeft"
+            android:clickable="true"
+            android:onClick="onButtonTurnLeftClick"
+            android:layout_alignTop="@+id/btnMove"
+            android:layout_alignLeft="@+id/btnBarDown"
+            android:layout_alignStart="@+id/btnBarDown" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Turn Right"
+            android:id="@+id/btnTurnRight"
+            android:onClick="onButtonTurnRightClick"
+            android:clickable="true"
+            android:layout_alignTop="@+id/btnMove"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Move Back"
+            android:id="@+id/btnMoveBack"
+            android:clickable="true"
+            android:onClick="onButtonMoveBackClick"
+            android:layout_below="@+id/btnMove"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bar +"
+            android:id="@+id/btnBarUp"
+            android:clickable="true"
+            android:onClick="onButtonBarUpClick"
+            android:layout_below="@+id/btnMoveBack"
+            android:layout_alignRight="@+id/btnBarDown"
+            android:layout_alignEnd="@+id/btnBarDown" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bar -"
+            android:id="@+id/btnBarDown"
+            android:clickable="true"
+            android:onClick="onButtonBarDownClick"
+            android:layout_below="@+id/btnStop"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Drive Square"
+            android:id="@+id/btnDriveSquare"
+            android:clickable="true"
+            android:onClick="onButtonDriveSquareClick"
+            android:nestedScrollingEnabled="false"
+            android:layout_below="@+id/btnStop"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="45dp" />
+
+
+    </RelativeLayout>
+
+
+
+</FrameLayout>

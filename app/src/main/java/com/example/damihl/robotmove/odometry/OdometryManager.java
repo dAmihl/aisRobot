@@ -80,8 +80,8 @@ public class OdometryManager {
         y = y + (vRobot * (float) Math.sin(angle));
         angle = angle + (wRobot * dt);
 
-        application.threadSafeDebugOutput("Current Robot position: " + x + "/" + y + "/" + angle);
-        application.threadSafeOdometryDataOutput(x, y, angle);
+       application.threadSafeDebugOutput("Current Robot position: " + x + "/" + y + "/" + angle);
+       application.threadSafeOdometryDataOutput(x, y, angle);
 
     }
 
