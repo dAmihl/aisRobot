@@ -21,9 +21,9 @@ public class ObstacleAvoidManager {
         String sensorData = this.controlManager.getSensorData();
 
         String arr[] = sensorData.split(" ");
-        int value1 = Integer.parseInt(arr[arr.length -2].substring(2,3), 16);
-        int value2 = Integer.parseInt(arr[arr.length -3].substring(2,3), 16);
-        int value3 = Integer.parseInt(arr[arr.length -4].substring(2,3), 16);
+        int value1 = Integer.parseInt(arr[arr.length -2].substring(2), 16);
+        int value2 = Integer.parseInt(arr[arr.length -3].substring(2), 16);
+        int value3 = Integer.parseInt(arr[arr.length -4].substring(2), 16);
         application.threadSafeDebugOutput("SensorData: "+sensorData);
         application.threadSafeDebugOutput("Value Sensor 1: "+value1+" Sensor 2: "+value2+" Sensor 3:"+value3);
 
