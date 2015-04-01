@@ -21,10 +21,13 @@ public class ObstacleAvoidManager {
         String sensorData = this.controlManager.getSensorData();
 
         String arr[] = sensorData.split(" ");
-        int value = Integer.parseInt(arr[arr.length -3].substring(2,3), 16);
-        application.threadSafeDebugOutput("Value Sensor:"+value);
+        int value1 = Integer.parseInt(arr[arr.length -2].substring(2,3), 16);
+        int value2 = Integer.parseInt(arr[arr.length -3].substring(2,3), 16);
+        int value3 = Integer.parseInt(arr[arr.length -4].substring(2,3), 16);
+        application.threadSafeDebugOutput("Value Sensor 1: "+value1+" Sensor 2: "+value2+" Sensor 3:"+value3);
 
-        if(value <= 29 ){
+
+        /*if(value <= 29 ){
             return true;
         }
         /*if(arr[arr.length -3].equals("0x1d") || arr[arr.length -3].equals("0x1c") || arr[arr.length -3].equals("0x1e"))
