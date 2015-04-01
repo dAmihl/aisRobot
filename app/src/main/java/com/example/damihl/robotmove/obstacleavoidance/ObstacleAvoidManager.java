@@ -30,11 +30,16 @@ public class ObstacleAvoidManager {
         /*if(value == 15 ){
             return true;
         }
+<<<<<<< HEAD
         /*if(arr[arr.length -3].equals("0x1d") || arr[arr.length -3].equals("0x1c") || arr[arr.length -3].equals("0x1e"))
         {
             return true;
         }*/
 
+=======
+      application.threadSafeDebugOutput("SensorData: "+sensorData);
+      application.threadSafeSensorDataOutput(arr);
+>>>>>>> origin/uiExp
         /*if( insert Obstacle checking algorithm based on sensor data here)
         *   return true
         *else */

@@ -1,9 +1,5 @@
 package com.example.damihl.robotmove.controls;
 
-import android.app.Activity;
-import android.content.Context;
-import android.hardware.usb.UsbManager;
-
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.connection.ConnectionManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
