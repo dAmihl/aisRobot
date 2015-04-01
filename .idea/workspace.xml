@@ -17,16 +17,7 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="app: com.example.damihl.robotmove" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="435c0cb1-a6c1-41f3-8b08-ed73c51a0e07" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/app/src/main/java/com/example/damihl/robotmove/MainActivity.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/example/damihl/robotmove/obstacleavoidance/ObstacleAvoidManager.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/damihl/robotmove/obstacleavoidance/ObstacleAvoidManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/example/damihl/robotmove/odometry/OdometryManager.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/damihl/robotmove/odometry/OdometryManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/build.gradle" afterPath="$PROJECT_DIR$/app/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/menu/menu_tabbed.xml" afterPath="$PROJECT_DIR$/app/src/main/res/menu/menu_tabbed.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-    </list>
+    <list default="true" id="435c0cb1-a6c1-41f3-8b08-ed73c51a0e07" name="Default" comment="" />
     <ignored path="RobotMove.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -51,8 +42,8 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/damihl/robotmove/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.28853756" vertical-offset="3604" max-vertical-offset="5565">
-              <caret line="255" column="16" selection-start-line="255" selection-start-column="16" selection-end-line="255" selection-end-column="16" />
+            <state vertical-scroll-proportion="0.19960475" vertical-offset="3604" max-vertical-offset="5565">
+              <caret line="252" column="36" selection-start-line="252" selection-start-column="36" selection-end-line="252" selection-end-column="36" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#6269#6303#0" expanded="true" />
@@ -3708,8 +3699,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/damihl/robotmove/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.28853756" vertical-offset="3604" max-vertical-offset="5565">
-          <caret line="255" column="16" selection-start-line="255" selection-start-column="16" selection-end-line="255" selection-end-column="16" />
+        <state vertical-scroll-proportion="0.19960475" vertical-offset="3604" max-vertical-offset="5565">
+          <caret line="252" column="36" selection-start-line="252" selection-start-column="36" selection-end-line="252" selection-end-column="36" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#6269#6303#0" expanded="true" />
