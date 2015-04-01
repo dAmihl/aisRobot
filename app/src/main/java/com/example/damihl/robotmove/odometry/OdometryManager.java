@@ -1,12 +1,7 @@
 package com.example.damihl.robotmove.odometry;
 
-import android.app.Activity;
-import android.os.SystemClock;
-
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
-
-import java.util.ResourceBundle;
 
 /**
  * Created by dAmihl on 23.03.15.
@@ -85,7 +80,9 @@ public class OdometryManager {
         y = y + (vRobot * (float) Math.sin(angle));
         angle = angle + (wRobot * dt);
 
-        application.threadSafeDebugOutput("Current Robot position: " + x + "/" + y + "/" + angle);
+       application.threadSafeDebugOutput("Current Robot position: " + x + "/" + y + "/" + angle);
+       application.threadSafeOdometryDataOutput(x, y, angle);
+
     }
 
     public void setAngularVelocities(float left, float right){

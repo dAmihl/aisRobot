@@ -34,7 +34,8 @@ public class ObstacleAvoidManager {
         {
             return true;
         }*/
-
+      application.threadSafeDebugOutput("SensorData: "+sensorData);
+      application.threadSafeSensorDataOutput(arr);
         /*if( insert Obstacle checking algorithm based on sensor data here)
         *   return true
         *else */

@@ -1,6 +1,5 @@
 package com.example.damihl.robotmove.connection;
 
-import android.app.Activity;
 import android.content.Context;
 import android.hardware.usb.UsbManager;
 
