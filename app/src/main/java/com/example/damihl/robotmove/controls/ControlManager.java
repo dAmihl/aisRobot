@@ -67,18 +67,8 @@ public class ControlManager {
     }
 
 
-    public void targetReached(){
-        if (odometryManager.getCurrentPosition().x > 1000){
-            returnHome();
-        }else{
-            robotStop();
-        }
-    }
-
-    private void returnHome(){
-        robotMoveTowards(0,0);
-        application.moveStandard();
-
+    public void targetReached() {
+        robotStop();
     }
 
 
