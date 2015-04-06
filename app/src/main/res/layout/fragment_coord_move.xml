@@ -16,7 +16,7 @@
             android:inputType="number"
             android:ems="10"
             android:id="@+id/moveToX"
-            android:text="Enter X Coord"
+            android:hint="X"
             android:selectAllOnFocus="true" />
 
         <EditText
@@ -25,7 +25,7 @@
             android:inputType="number"
             android:ems="10"
             android:id="@+id/moveToY"
-            android:text="Enter Y Coord"
+            android:hint="Y"
             android:selectAllOnFocus="true" />
 
         <Button
