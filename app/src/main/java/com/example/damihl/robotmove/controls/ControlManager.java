@@ -5,6 +5,8 @@ import com.example.damihl.robotmove.connection.ConnectionManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 
+import java.sql.Connection;
+
 import jp.ksksue.driver.serial.FTDriver;
 
 
@@ -13,6 +15,14 @@ import jp.ksksue.driver.serial.FTDriver;
  */
 public class ControlManager {
 
+    private static ControlManager instance = null;
+
+    public static ControlManager getInstance(){
+        if (instance != null) return instance;
+        else return new ControlManager();
+    }
+
+
     private MainActivity application;
     private OdometryManager odometryManager;
     private FTDriver ftDriver;
@@ -20,9 +30,9 @@ public class ControlManager {
 
     public boolean ROBOT_MOVING = false;
 
-    public ControlManager(ConnectionManager conn, OdometryManager odo){
-       this.con = conn;
-        this.odometryManager = odo;
+    private ControlManager(){
+       this.con = ConnectionManager.getInstance();
+        this.odometryManager = OdometryManager.getInstance();
        this.ftDriver = this.con.getDriver();
     }
 
@@ -51,20 +61,6 @@ public class ControlManager {
     }
 
 
-    public void robotMoveTowards(int x, int y){
-        RobotPosVector target = new RobotPosVector(x, y, 0);
-        float angle = odometryManager.getCurrentPosition().angleBetween(target);
-        target.angle = angle;
-        float angleToTurn = odometryManager.getCurrentPosition().angle - angle;
-        robotTurn((byte) angleToTurn);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        odometryManager.getCurrentPosition().angle = angle;
-        odometryManager.setTargetPosition(target, this);
-    }
 
 
     public void targetReached() {

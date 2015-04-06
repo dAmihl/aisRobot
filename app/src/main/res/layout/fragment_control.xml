@@ -1,7 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.damihl.robotmove.ControlFragment">
+    tools:context="com.example.damihl.robotmove.uifragments.ControlFragment">
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -60,8 +60,7 @@
             android:clickable="true"
             android:onClick="onButtonConnectClick"
             android:layout_below="@+id/textConnectionInfo"
-            android:layout_alignLeft="@+id/btnDriveSquare"
-            android:layout_alignStart="@+id/btnDriveSquare" />
+            android:layout_centerHorizontal="true" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
@@ -121,19 +120,6 @@
             android:layout_below="@+id/btnStop"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Drive Square"
-            android:id="@+id/btnDriveSquare"
-            android:clickable="true"
-            android:onClick="onButtonDriveSquareClick"
-            android:nestedScrollingEnabled="false"
-            android:layout_below="@+id/btnStop"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="45dp" />
 
 
     </RelativeLayout>

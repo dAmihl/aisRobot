@@ -1,18 +1,43 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.damihl.robotmove.CoordMoveFragment">
+    tools:context="com.example.damihl.robotmove.uifragments.CoordMoveFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="MoveTo10/0"
-        android:id="@+id/btnMoveTowardsCoord"
-        android:layout_gravity="center"
-        android:focusableInTouchMode="false"
-        android:enabled="true"
-        android:clickable="true"
-        android:onClick="onButtonMoveTowardsClick" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/moveToX"
+            android:text="Enter X Coord"
+            android:selectAllOnFocus="true" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/moveToY"
+            android:text="Enter Y Coord"
+            android:selectAllOnFocus="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MoveTo"
+            android:id="@+id/btnMoveTowardsCoord"
+            android:layout_gravity="center_horizontal"
+            android:focusableInTouchMode="false"
+            android:enabled="true"
+            android:clickable="true"
+            android:onClick="onButtonMoveTowardsClick" />
+    </LinearLayout>
+
 </FrameLayout>

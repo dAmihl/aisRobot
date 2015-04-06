@@ -13,12 +13,19 @@ import jp.ksksue.driver.serial.FTDriver;
  */
 public class ConnectionManager {
 
+    private static ConnectionManager instance = null;
+
+    public static ConnectionManager getInstance(){
+        if (instance != null) return instance;
+        else return new ConnectionManager();
+    }
+
     private MainActivity application;
     private FTDriver com;
     static int BAUDRATE = 9600;
 
-    public ConnectionManager(MainActivity app){
-        this.application = app;
+    private ConnectionManager(){
+        this.application = MainActivity.getInstance();
     }
 
 

@@ -11,7 +11,8 @@
     <string name="title_section2">Log</string>
     <string name="title_section3">Odometry</string>
     <string name="title_section4">Sensor</string>
-    <string name="title_section5">CoordMove</string>
+    <string name="title_section5">Move To</string>
+    <string name="title_section6">Paths</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->

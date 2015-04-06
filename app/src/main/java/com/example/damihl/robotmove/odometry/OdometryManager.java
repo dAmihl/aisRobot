@@ -2,12 +2,16 @@ package com.example.damihl.robotmove.odometry;
 
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
+import com.example.damihl.robotmove.tasks.TaskManager;
+import com.example.damihl.robotmove.utils.EventCallback;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 
 /**
  * Created by dAmihl on 23.03.15.
  */
 public class OdometryManager {
+
+    private static OdometryManager instance = null;
 
     private MainActivity application;
 
@@ -20,7 +24,7 @@ public class OdometryManager {
 
     private boolean hasTarget = false;
     private RobotPosVector targetPosition = null;
-    private ControlManager controlManager = null;
+    private EventCallback targetReachEventCallback = null;
 
     // current robot position and angle
     RobotPosVector currentPosition;
@@ -37,10 +41,17 @@ public class OdometryManager {
     private float wRobot;
 
 
-    public OdometryManager(MainActivity app){
+    public static OdometryManager getInstance(){
+        if (instance != null) return instance;
+        else return new OdometryManager();
+    }
+
+
+    private OdometryManager(){
         currentPosition = new RobotPosVector(0,0,0);
         initState();
-        this.application = app;
+        this.application = MainActivity.getInstance();
+        this.targetReachEventCallback = TaskManager.getInstance();
     }
 
     public void initOdoThread(final MainActivity appl, final ControlManager control){
@@ -108,10 +119,13 @@ public class OdometryManager {
     }
 
 
-    public void setTargetPosition(RobotPosVector target, ControlManager cm){
+    public void setTargetPosition(RobotPosVector target){
         hasTarget = true;
         this.targetPosition = target;
-        this.controlManager = cm;
+    }
+
+    public void setEventCallback(EventCallback called){
+        this.targetReachEventCallback = called;
     }
 
 
@@ -124,8 +138,8 @@ public class OdometryManager {
     private void targetReached(){
         hasTarget = false;
         this.targetPosition = null;
-        controlManager.targetReached();
-        this.controlManager = null;
+        targetReachEventCallback.targetReachedCallback();
+        this.targetReachEventCallback = null;
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.damihl.robotmove;
 
+import java.sql.Connection;
 import java.util.Locale;
 
 import android.support.v7.app.ActionBarActivity;
@@ -10,7 +11,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,18 +23,35 @@ import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.paths.PathDriveManager;
+import com.example.damihl.robotmove.tasks.Task;
+import com.example.damihl.robotmove.tasks.TaskManager;
+import com.example.damihl.robotmove.tasks.TaskQueue;
+import com.example.damihl.robotmove.uifragments.ControlFragment;
+import com.example.damihl.robotmove.uifragments.CoordMoveFragment;
+import com.example.damihl.robotmove.uifragments.LogFragment;
+import com.example.damihl.robotmove.uifragments.OdometryFragment;
+import com.example.damihl.robotmove.uifragments.PathsFragment;
+import com.example.damihl.robotmove.uifragments.SensorFragment;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
-    private static final int NUM_TABS = 5;
+    private static final int NUM_TABS = 6;
+
+    private static MainActivity instance = null;
+
+
+    public static MainActivity getInstance(){
+        return instance;
+    }
 
     private static final Integer FRAGMENT_CONTROL_INDEX = 0;
     private static final Integer FRAGMENT_LOG_INDEX = 1;
     private static final Integer FRAGMENT_ODOMETRY_INDEX = 2;
     private static final Integer FRAGMENT_SENSOR_INDEX = 3;
     private static final Integer FRAGMENT_COORD_MOVE_INDEX = 4;
+    private static final Integer FRAGMENT_PATHS_INDEX = 5;
 
     private ConnectionManager connectionManager;
     private ControlManager controlManager;
@@ -89,7 +106,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
-
+        instance = this;
         init();
     }
 
@@ -158,6 +175,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return SensorFragment.newInstance(position);
             }else if (position == FRAGMENT_COORD_MOVE_INDEX){
                 return CoordMoveFragment.newInstance(position);
+            }else if (position == FRAGMENT_PATHS_INDEX){
+                return PathsFragment.newInstance(position);
             }else{
                 return PlaceholderFragment.newInstance(position + 1);
             }
@@ -184,6 +203,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     return getString(R.string.title_section4).toUpperCase(l);
                 case 4:
                     return getString(R.string.title_section5).toUpperCase(l);
+                case 5:
+                    return getString(R.string.title_section6).toUpperCase(l);
 
             }
             return null;
@@ -234,15 +255,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
 
     private void init(){
-        this.connectionManager = new ConnectionManager(this);
+        this.connectionManager = ConnectionManager.getInstance();
         this.connectionManager.initUSB();
-        this.odometryManager = new OdometryManager(this);
-        this.controlManager = new ControlManager(connectionManager, odometryManager);
-        this.obstacleManager = new ObstacleAvoidManager(controlManager, this);
-        this.pathManager = new PathDriveManager(controlManager, this, obstacleManager);
-
-        // this.odometryManager.initOdoThread(this, controlManager);
-
+        this.odometryManager = OdometryManager.getInstance();
+        this.controlManager = ControlManager.getInstance();
+        this.obstacleManager = ObstacleAvoidManager.getInstance();
+        this.pathManager = PathDriveManager.getInstance();
 
     }
 
@@ -297,15 +315,28 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void onButtonDriveSquareClick(View v){
         if (checkConnection()){
-            //pathManager.driveSquare(100);
-            pathManager.driveSquareObstacleSafe(100);
+            TaskQueue squareTask = PathDriveManager.getInstance().getSquareTestPath(100);
+            TaskManager.getInstance().executeTaskQueue(squareTask);
         }
     }
 
    public void onButtonMoveTowardsClick(View v){
         if (checkConnection()){
-            controlManager.robotMoveTowards(2000,2000);
-            moveStandard();
+            TextView xCoord = (TextView) findViewById(R.id.moveToX);
+            TextView yCoord = (TextView) findViewById(R.id.moveToY);
+
+            int x = 2000;
+            int y = 2000;
+
+            if (xCoord.getTextSize() > 0) {
+                x = Integer.parseInt(xCoord.getText().toString());
+                y = Integer.parseInt(yCoord.getText().toString());
+            }else{
+                x = 2000;
+                y = 2000;
+            }
+            TaskQueue moveTowardsTask = Task.getNewMoveToTaskQueue(30, 30, x, y);
+            TaskManager.getInstance().executeTaskQueue(moveTowardsTask);
         }
     }
 

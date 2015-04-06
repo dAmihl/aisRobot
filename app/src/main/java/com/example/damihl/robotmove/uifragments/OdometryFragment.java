@@ -1,26 +1,23 @@
-package com.example.damihl.robotmove;
+package com.example.damihl.robotmove.uifragments;
 
-import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.damihl.robotmove.R;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ControlFragment.OnFragmentInteractionListener} interface
+ * {@link OdometryFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link ControlFragment#newInstance} factory method to
+ * Use the {@link OdometryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-
-import android.support.v4.app.Fragment;
-
-public class ControlFragment extends android.support.v4.app.Fragment {
-
+public class OdometryFragment extends Fragment {
 
     /**
      * The fragment argument representing the section number for this
@@ -32,22 +29,21 @@ public class ControlFragment extends android.support.v4.app.Fragment {
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static ControlFragment newInstance(int sectionNumber) {
-        ControlFragment fragment = new ControlFragment();
+    public static OdometryFragment newInstance(int sectionNumber) {
+        OdometryFragment fragment = new OdometryFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public ControlFragment() {
+    public OdometryFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_control, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_odometry, container, false);
         return rootView;
     }
 }
-

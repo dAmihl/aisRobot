@@ -3,6 +3,10 @@ package com.example.damihl.robotmove.paths;
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
+import com.example.damihl.robotmove.tasks.Task;
+import com.example.damihl.robotmove.tasks.TaskQueue;
+
+import java.util.LinkedList;
 
 /**
  * Created by dAmihl on 13.03.15.
@@ -13,10 +17,17 @@ public class PathDriveManager {
     private MainActivity activity;
     private ObstacleAvoidManager obstacleAvoidance;
 
-    public PathDriveManager(ControlManager con, MainActivity act, ObstacleAvoidManager obstacleManager){
-        this.controlManager = con;
-        this.activity = act;
-        this.obstacleAvoidance = obstacleManager;
+    private static PathDriveManager instance = null;
+
+    public static PathDriveManager getInstance(){
+        if (instance != null) return instance;
+        else return new PathDriveManager();
+    }
+
+    private PathDriveManager(){
+        this.controlManager = ControlManager.getInstance();
+        this.activity = MainActivity.getInstance();
+        this.obstacleAvoidance = ObstacleAvoidManager.getInstance();
     }
 
     public void driveSquare(int squareSize){
@@ -44,29 +55,22 @@ public class PathDriveManager {
 
     }
 
-    public void driveSquareObstacleSafe(int squareSize){
-        if (!activity.checkConnection()) return;
 
-        int waitTimeMove = controlManager.getSleepTimeRobotDrive(squareSize);
-        int waitTimeTurn = controlManager.getSleepTimeRobotTurn(90);
-        int turnsize = controlManager.computeCorrectDegree(90);//99
+    public TaskQueue getSquareTestPath(int size){
+        TaskQueue queue = new TaskQueue();
+        int speedR = 30;
+        int speedL = 30;
 
-        obstacleAvoidance.driveObstacleSafe((byte) squareSize);
-        controlManager.pause(waitTimeMove);
-        controlManager.robotTurn((byte) turnsize);
-        controlManager.pause(waitTimeTurn);
-        obstacleAvoidance.driveObstacleSafe((byte) squareSize);
-        controlManager.pause(waitTimeMove);
-        controlManager.robotTurn((byte) turnsize);
-        controlManager.pause(waitTimeTurn);
-        obstacleAvoidance.driveObstacleSafe((byte) squareSize);
-        controlManager.pause(waitTimeMove);
-        controlManager.robotTurn((byte) turnsize);
-        controlManager.pause(waitTimeTurn);
-        obstacleAvoidance.driveObstacleSafe((byte) squareSize);
-        controlManager.pause(waitTimeMove);
-        controlManager.robotTurn((byte) turnsize);
+        queue.add(Task.getNewMoveTask(speedR, speedL, size, 0));
+        queue.add(Task.getNewTurnTask(90));
+        queue.add(Task.getNewMoveTask(speedR, speedL, size, size));
+        queue.add(Task.getNewTurnTask(90));
+        queue.add(Task.getNewMoveTask(speedR, speedL, 0, size));
+        queue.add(Task.getNewTurnTask(90));
+        queue.add(Task.getNewMoveTask(speedR, speedL, 0, 0));
 
+        return queue;
     }
+
 
 }

@@ -2,11 +2,23 @@ package com.example.damihl.robotmove.obstacleavoidance;
 
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
+import com.example.damihl.robotmove.tasks.TaskManager;
+import com.example.damihl.robotmove.utils.EventCallback;
 
 /**
  * Created by dAmihl on 19.03.15.
  */
 public class ObstacleAvoidManager {
+
+    private static ObstacleAvoidManager instance = null;
+
+    public static ObstacleAvoidManager getInstance(){
+        if (instance != null) return instance;
+        else return new ObstacleAvoidManager();
+    }
+
+
+    private EventCallback obstacleFoundEventCallback = null;
 
     private ControlManager controlManager;
     private MainActivity application;
@@ -14,9 +26,10 @@ public class ObstacleAvoidManager {
 
     private final static long sleepTime = 100;
 
-    public ObstacleAvoidManager(ControlManager control, MainActivity application){
-        this.controlManager = control;
-        this.application = application;
+    private ObstacleAvoidManager(){
+        this.controlManager = ControlManager.getInstance();
+        this.application = MainActivity.getInstance();
+        this.obstacleFoundEventCallback = TaskManager.getInstance();
     }
 
     public boolean checkObstacle(){
@@ -56,8 +69,8 @@ public class ObstacleAvoidManager {
             public void run() {
                 while(control.ROBOT_MOVING) {
                     if (checkObstacle()){
+                        obstacleFoundEventCallback.obstacleFoundCallback();
                         appl.threadSafeDebugOutput("obstacle found!");
-                        controlManager.robotStop();
                     }
                     try {
                         Thread.sleep(sleepTime);
@@ -114,4 +127,7 @@ public class ObstacleAvoidManager {
     }
 
 
+    public void setEventCallback(EventCallback called) {
+        this.obstacleFoundEventCallback = called;
+    }
 }
