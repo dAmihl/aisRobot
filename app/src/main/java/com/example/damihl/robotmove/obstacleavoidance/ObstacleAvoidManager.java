@@ -102,8 +102,10 @@ public class ObstacleAvoidManager {
 
 
     /*
+
     Robot sees best at ~8cm (see Bachelor thesis)
      */
+    @Deprecated
     public void driveObstacleSafe(int distance){
 
         int SAFE_STEP_SIZE = 1;

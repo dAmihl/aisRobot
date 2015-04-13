@@ -19,7 +19,8 @@ public class OdometryManager {
 
     private final float r = 4.5f;
     private final float d = 20f;
-    public final float dt = 1f;
+    private final float dt = 1f;
+    private final float u = (float) (2*r*Math.PI);
    // public final long sleepTime = (long) (1000 * dt);
     public final long sleepTime = 100;
 
@@ -99,11 +100,22 @@ public class OdometryManager {
         vRobot = (vr + vl)/2;
         wRobot = (vr - vl)/d;
 
+        float oneRevolutionL = (float)(wl/2*Math.PI);
+        float oneRevolutionR = (float)(wr/2*Math.PI);
+        float ticksPerRevolutionL = oneRevolutionL / (1000/sleepTime);
+        float ticksPerRevolutionR = oneRevolutionR / (1000/sleepTime);
+
+        float dsl = u / ticksPerRevolutionL;
+        float dsr = u / ticksPerRevolutionR;
+        float dphi = (Math.max(dsl, dsr) - Math.min(dsl, dsr))   / d;
+
         currentPosition.x = currentPosition.x + (vRobot * (float) Math.cos(Math.toRadians(currentPosition.angle)));
         currentPosition.y = currentPosition.y + (vRobot * (float) Math.sin(Math.toRadians(currentPosition.angle)));
-        currentPosition.angle = currentPosition.angle + (wRobot * dt);
+//        currentPosition.angle = currentPosition.angle + (wRobot * dt);
+        currentPosition.angle = currentPosition.angle + dphi;
 
-       application.threadSafeOdometryDataOutput(currentPosition);
+
+        application.threadSafeOdometryDataOutput(currentPosition);
 
     }
 
