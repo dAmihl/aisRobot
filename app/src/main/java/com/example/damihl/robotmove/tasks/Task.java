@@ -38,7 +38,7 @@ public class Task {
 
 
     public static Task getNewTurnTask(float byDegree){
-        RobotPosVector t = OdometryManager.getInstance().getCurrentPosition().add(new RobotPosVector(0, 0, byDegree/*+9*/));
+        RobotPosVector t = OdometryManager.getInstance().getCurrentPosition().add(new RobotPosVector(0, 0, byDegree+9));
         MainActivity.getInstance().threadSafeDebugOutput("Turn Target: "+t);
         int turnSpeed = 20;
         int left;

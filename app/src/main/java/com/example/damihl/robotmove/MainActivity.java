@@ -28,6 +28,7 @@ import com.example.damihl.robotmove.paths.PathDriveManager;
 import com.example.damihl.robotmove.tasks.Task;
 import com.example.damihl.robotmove.tasks.TaskManager;
 import com.example.damihl.robotmove.tasks.TaskQueue;
+import com.example.damihl.robotmove.uifragments.CameraFragment;
 import com.example.damihl.robotmove.uifragments.ControlFragment;
 import com.example.damihl.robotmove.uifragments.CoordMoveFragment;
 import com.example.damihl.robotmove.uifragments.LogFragment;
@@ -39,7 +40,7 @@ import com.example.damihl.robotmove.utils.RobotPosVector;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
-    private static final int NUM_TABS = 6;
+    private static final int NUM_TABS = 7;
 
     private static MainActivity instance = null;
 
@@ -54,6 +55,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private static final Integer FRAGMENT_SENSOR_INDEX = 3;
     private static final Integer FRAGMENT_COORD_MOVE_INDEX = 4;
     private static final Integer FRAGMENT_PATHS_INDEX = 5;
+    private static final Integer FRAGMENT_CAMERA_INDEX = 6;
+
 
     private ConnectionManager connectionManager;
     private ControlManager controlManager;
@@ -179,6 +182,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return CoordMoveFragment.newInstance(position);
             }else if (position == FRAGMENT_PATHS_INDEX){
                 return PathsFragment.newInstance(position);
+            }else if (position == FRAGMENT_CAMERA_INDEX){
+                return CameraFragment.newInstance(position);
             }else{
                 return PlaceholderFragment.newInstance(position + 1);
             }
@@ -207,6 +212,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     return getString(R.string.title_section5).toUpperCase(l);
                 case 5:
                     return getString(R.string.title_section6).toUpperCase(l);
+                case 6:
+                    return getString(R.string.title_section7).toUpperCase(l);
 
             }
             return null;
