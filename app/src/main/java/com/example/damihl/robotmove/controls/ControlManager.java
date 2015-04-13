@@ -19,7 +19,10 @@ public class ControlManager {
 
     public static ControlManager getInstance(){
         if (instance != null) return instance;
-        else return new ControlManager();
+        else{
+            instance = new ControlManager();
+            return instance;
+        }
     }
 
 

@@ -17,7 +17,10 @@ public class ConnectionManager {
 
     public static ConnectionManager getInstance(){
         if (instance != null) return instance;
-        else return new ConnectionManager();
+        else{
+            instance = new ConnectionManager();
+            return instance;
+        }
     }
 
     private MainActivity application;

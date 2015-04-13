@@ -21,7 +21,10 @@ public class PathDriveManager {
 
     public static PathDriveManager getInstance(){
         if (instance != null) return instance;
-        else return new PathDriveManager();
+        else {
+            instance = new PathDriveManager();
+            return instance;
+        }
     }
 
     private PathDriveManager(){
@@ -58,8 +61,8 @@ public class PathDriveManager {
 
     public TaskQueue getSquareTestPath(int size){
         TaskQueue queue = new TaskQueue();
-        int speedR = 30;
-        int speedL = 30;
+        int speedR = 15;
+        int speedL = 15;
 
         queue.add(Task.getNewMoveTask(speedR, speedL, size, 0));
         queue.add(Task.getNewTurnTask(90));

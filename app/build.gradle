@@ -24,4 +24,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile project(':ftdriver')
     compile 'com.android.support:support-v4:19.0.0'
+    compile project(':openCVLibrary2410')
 }

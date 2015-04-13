@@ -2,8 +2,11 @@ package com.example.damihl.robotmove.obstacleavoidance;
 
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
+import com.example.damihl.robotmove.tasks.Task;
 import com.example.damihl.robotmove.tasks.TaskManager;
+import com.example.damihl.robotmove.tasks.TaskQueue;
 import com.example.damihl.robotmove.utils.EventCallback;
+import com.example.damihl.robotmove.utils.RobotPosVector;
 
 /**
  * Created by dAmihl on 19.03.15.
@@ -14,7 +17,10 @@ public class ObstacleAvoidManager {
 
     public static ObstacleAvoidManager getInstance(){
         if (instance != null) return instance;
-        else return new ObstacleAvoidManager();
+        else{
+            instance = new ObstacleAvoidManager();
+            return instance;
+        }
     }
 
 
@@ -88,9 +94,9 @@ public class ObstacleAvoidManager {
             initObstThread(appl, control);
             obstThread.start();
         }catch(Exception e){
-            appl.printDebugText("odometry error: "+e);
+            appl.printDebugText("obstacle avoid error: "+e);
         }
-        appl.printDebugText("odometry started");
+        appl.printDebugText("obstacle avoid started");
     }
 
 
@@ -114,8 +120,12 @@ public class ObstacleAvoidManager {
         }
     }
 
-    public void avoidObstacleBug0(){
-
+    public void avoidObstacleBug0(RobotPosVector toTarget){
+        TaskQueue queue = Task.getNewMoveByRightTaskQueue(20, 20, 1000);
+        int x = (int) toTarget.x;
+        int y = (int) toTarget.y;
+        queue.addAll(Task.getNewMoveToTaskQueue(20, 20, x,y));
+        TaskManager.getInstance().executeTaskQueue(queue);
     }
 
     public void avoidObstacleBug1(){

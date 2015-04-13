@@ -18,6 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+
+
 import com.example.damihl.robotmove.connection.ConnectionManager;
 import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
@@ -315,7 +317,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void onButtonDriveSquareClick(View v){
         if (checkConnection()){
-            TaskQueue squareTask = PathDriveManager.getInstance().getSquareTestPath(100);
+            TaskQueue squareTask = PathDriveManager.getInstance().getSquareTestPath(2000);
             TaskManager.getInstance().executeTaskQueue(squareTask);
         }
     }
@@ -328,22 +330,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             int x = 2000;
             int y = 2000;
 
-            if (xCoord.getTextSize() > 0) {
+           /* if (xCoord.getTextSize() > 0) {
                 x = Integer.parseInt(xCoord.getText().toString());
                 y = Integer.parseInt(yCoord.getText().toString());
             }else{
                 x = 2000;
                 y = 2000;
-            }
-            TaskQueue moveTowardsTask = Task.getNewMoveToTaskQueue(30, 30, x, y);
+            }*/
+            TaskQueue moveTowardsTask = Task.getNewMoveToTaskQueue(15, 15, x, y);
             TaskManager.getInstance().executeTaskQueue(moveTowardsTask);
         }
     }
 
 
     public void startManagers(){
-        odometryManager.startOdometry(controlManager, this);
-        obstacleManager.startObstacleDetection(controlManager, this);
+        odometryManager.startOdometry(ControlManager.getInstance(), instance);
+        obstacleManager.startObstacleDetection(ControlManager.getInstance(), instance);
     }
 
     public void moveStandard(){

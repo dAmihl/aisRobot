@@ -7,6 +7,8 @@ public class RobotPosVector {
 
 
     private static final int STANDARD_POSITION_OFFSET = 100;
+    private static final int STANDARD_ANGLE_OFFSET = 9;
+    private static final int CALIBRATION_ANGLE_OFFSET = 9;
 
     public float x;
     public float y;
@@ -64,6 +66,18 @@ public class RobotPosVector {
     public boolean isAt(RobotPosVector other, int offset){
         return (x <= (other.x + offset)) && (x >= (other.x - offset))
                 && (y <= (other.y + offset)) && (y >= (other.y - offset));
+    }
+
+    public boolean isAtWithAngle(RobotPosVector other){
+        int offset = STANDARD_POSITION_OFFSET;
+        int angleOffset = STANDARD_ANGLE_OFFSET;
+        return isAtWithAngle(other, offset, angleOffset);
+    }
+
+    public boolean isAtWithAngle(RobotPosVector other, int offset, int angleOffset){
+        return      (x <= (other.x + offset)) && (x >= (other.x - offset))
+                &&  (y <= (other.y + offset)) && (y >= (other.y - offset))
+                &&  (angle <= (other.angle + CALIBRATION_ANGLE_OFFSET + angleOffset)) && (angle >= (other.angle + CALIBRATION_ANGLE_OFFSET - angleOffset));
     }
 
     public String toString(){

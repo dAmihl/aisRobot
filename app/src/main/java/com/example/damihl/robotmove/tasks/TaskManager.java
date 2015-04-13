@@ -5,6 +5,7 @@ import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.utils.EventCallback;
+import com.example.damihl.robotmove.utils.RobotPosVector;
 
 /**
  * Created by dAmihl on 06.04.15.
@@ -18,7 +19,10 @@ public class TaskManager implements EventCallback {
 
     public static TaskManager getInstance(){
         if (instance != null) return instance;
-        else return new TaskManager();
+        else{
+            instance =  new TaskManager();
+            return instance;
+        }
     }
 
     private TaskManager(){
@@ -39,7 +43,7 @@ public class TaskManager implements EventCallback {
 
     private void nextTask(){
         if (taskQueue.size() >= 1) {
-            currentTask = taskQueue.pop();
+            currentTask = taskQueue.remove();
         }else{
             currentTask = null;
             ControlManager.getInstance().robotStop();
@@ -58,18 +62,27 @@ public class TaskManager implements EventCallback {
         }
         OdometryManager.getInstance().setTargetPosition(currentTask.getTarget());
         OdometryManager.getInstance().setEventCallback(this);
-        ControlManager.getInstance().robotSetVelocity((byte) currentTask.getVelocityLeft(), (byte) currentTask.getVelocityRight());
         ObstacleAvoidManager.getInstance().setEventCallback(this);
+        ControlManager.getInstance().robotSetVelocity((byte) currentTask.getVelocityLeft(), (byte) currentTask.getVelocityRight());
         MainActivity.getInstance().startManagers();
     }
 
     @Override
     public void targetReachedCallback() {
+        ControlManager.getInstance().robotStop();
+        String t = "null";
+        if (currentTask != null)
+            t = currentTask.getTarget().toString();
+
+        MainActivity.getInstance().threadSafeDebugOutput("Target t:"+t+"/odo:"+OdometryManager.getInstance().getTargetPosition()+" reached. RobotPos: "+OdometryManager.getInstance().getCurrentPosition());
         startNextTask();
+        //ControlManager.getInstance().robotStop();
     }
 
     @Override
     public void obstacleFoundCallback() {
+        RobotPosVector oldTarget = currentTask.getTarget();
         ControlManager.getInstance().robotStop();
+        ObstacleAvoidManager.getInstance().avoidObstacleBug0(oldTarget);
     }
 }

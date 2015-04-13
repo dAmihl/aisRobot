@@ -19,7 +19,8 @@ public class OdometryManager {
 
     private final float r = 4.5f;
     private final float d = 20f;
-    public final float dt = 0.1f;
+    public final float dt = 1f;
+   // public final long sleepTime = (long) (1000 * dt);
     public final long sleepTime = 100;
 
     private boolean hasTarget = false;
@@ -43,7 +44,10 @@ public class OdometryManager {
 
     public static OdometryManager getInstance(){
         if (instance != null) return instance;
-        else return new OdometryManager();
+        else{
+            instance = new OdometryManager();
+            return instance;
+        }
     }
 
 
@@ -122,6 +126,7 @@ public class OdometryManager {
     public void setTargetPosition(RobotPosVector target){
         hasTarget = true;
         this.targetPosition = target;
+        MainActivity.getInstance().threadSafeDebugOutput("Odometry got target: "+target);
     }
 
     public void setEventCallback(EventCallback called){
@@ -130,21 +135,25 @@ public class OdometryManager {
 
 
     private void checkTargetReached(){
-        if (currentPosition.isAt(targetPosition)){
+        if (currentPosition.isAtWithAngle(targetPosition)){
+            MainActivity.getInstance().threadSafeDebugOutput("Target reached odo: "+targetPosition);
             targetReached();
         }
     }
 
     private void targetReached(){
         hasTarget = false;
-        this.targetPosition = null;
+      //  this.targetPosition = null;
         targetReachEventCallback.targetReachedCallback();
-        this.targetReachEventCallback = null;
     }
 
 
     public RobotPosVector getCurrentPosition(){
         return currentPosition;
+    }
+
+    public RobotPosVector getTargetPosition(){
+        return targetPosition;
     }
 
 }
