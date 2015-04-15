@@ -25,6 +25,7 @@ import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.paths.PathDriveManager;
+import com.example.damihl.robotmove.sensors.SensorManager;
 import com.example.damihl.robotmove.tasks.Task;
 import com.example.damihl.robotmove.tasks.TaskManager;
 import com.example.damihl.robotmove.tasks.TaskQueue;
@@ -63,6 +64,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private ObstacleAvoidManager obstacleManager;
     private PathDriveManager pathManager;
     private OdometryManager odometryManager;
+    private SensorManager sensorManager;
 
 
     SectionsPagerAdapter mSectionsPagerAdapter;
@@ -270,6 +272,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         this.controlManager = ControlManager.getInstance();
         this.obstacleManager = ObstacleAvoidManager.getInstance();
         this.pathManager = PathDriveManager.getInstance();
+        this.sensorManager = SensorManager.getInstance();
 
     }
 
@@ -353,6 +356,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void startManagers(){
         odometryManager.startOdometry(ControlManager.getInstance(), instance);
         obstacleManager.startObstacleDetection(ControlManager.getInstance(), instance);
+        sensorManager.startSensorThread(ControlManager.getInstance(), instance);
+
     }
 
     public void moveStandard(){

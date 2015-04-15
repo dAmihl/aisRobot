@@ -16,6 +16,7 @@ public class TaskManager implements EventCallback {
 
     private Task currentTask;
     private TaskQueue taskQueue = new TaskQueue();
+    private TaskThread taskThread;
 
     public static TaskManager getInstance(){
         if (instance != null) return instance;
@@ -60,6 +61,11 @@ public class TaskManager implements EventCallback {
             MainActivity.getInstance().threadSafeDebugOutput("All tasks finished!");
             return;
         }
+        startNewTaskThread(currentTask);
+        //startStandard();
+    }
+
+    private void startStandard(){
         OdometryManager.getInstance().setTargetPosition(currentTask.getTarget());
         OdometryManager.getInstance().setEventCallback(this);
         ObstacleAvoidManager.getInstance().setEventCallback(this);
@@ -67,22 +73,27 @@ public class TaskManager implements EventCallback {
         MainActivity.getInstance().startManagers();
     }
 
+    private void startNewTaskThread(Task t){
+        taskThread = new TaskThread(t, this);
+        taskThread.start();
+    }
+
     @Override
     public void targetReachedCallback() {
-        ControlManager.getInstance().robotStop();
-        String t = "null";
-        if (currentTask != null)
-            t = currentTask.getTarget().toString();
-
-        MainActivity.getInstance().threadSafeDebugOutput("Target t:"+t+"/odo:"+OdometryManager.getInstance().getTargetPosition()+" reached. RobotPos: "+OdometryManager.getInstance().getCurrentPosition());
-        startNextTask();
         //ControlManager.getInstance().robotStop();
+        //startNextTask();
     }
 
     @Override
     public void obstacleFoundCallback() {
-        RobotPosVector oldTarget = currentTask.getTarget();
+       /* RobotPosVector oldTarget = currentTask.getTarget();
         ControlManager.getInstance().robotStop();
-        ObstacleAvoidManager.getInstance().avoidObstacleBug0(oldTarget);
+        ObstacleAvoidManager.getInstance().avoidObstacleBug0(oldTarget);*/
+    }
+
+    @Override
+    public void taskFinished(){
+        ControlManager.getInstance().robotStop();
+        startNextTask();
     }
 }

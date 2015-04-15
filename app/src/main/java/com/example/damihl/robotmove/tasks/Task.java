@@ -1,6 +1,8 @@
 package com.example.damihl.robotmove.tasks;
 
 import com.example.damihl.robotmove.MainActivity;
+import com.example.damihl.robotmove.controls.ControlManager;
+import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 
@@ -14,13 +16,19 @@ public class Task {
     private int velocityRight;
     private int velocityLeft;
 
+    private TaskExecution execution;
+    private TaskCondition finishCondition;
+
+
     private RobotPosVector target;
 
 
-    private Task(int velR, int velL, RobotPosVector target){
+    private Task(int velR, int velL, RobotPosVector target, TaskExecution exec, TaskCondition condition){
         this.velocityLeft = velL;
         this.velocityRight = velR;
         this.target = target;
+        this.execution = exec;
+        this.finishCondition = condition;
     }
 
     public int getVelocityRight() {
@@ -35,8 +43,19 @@ public class Task {
         return target;
     }
 
+    public TaskExecution getTaskExecution(){
+        return execution;
+    }
+
+    public TaskCondition getTaskFinishCondition(){
+        return finishCondition;
+    }
 
 
+
+    /*
+    STANDARD MOVEMENT TASKS
+     */
     public static Task getNewTurnTask(float byDegree){
         RobotPosVector t = OdometryManager.getInstance().getCurrentPosition().add(new RobotPosVector(0, 0, byDegree+9));
         MainActivity.getInstance().threadSafeDebugOutput("Turn Target: "+t);
@@ -51,7 +70,7 @@ public class Task {
             left = -turnSpeed;
             right = turnSpeed;
         }
-        return new Task(right, left, t);
+        return new Task(right, left, t, getStandardTaskExecution(), getStandardTaskCondition());
     }
 
     public static Task getNewTurnToTask(float toDegree){
@@ -62,7 +81,7 @@ public class Task {
     }
 
     public static Task createNewTask(int velR, int velL, RobotPosVector t){
-        return new Task(velR, velL, t);
+        return new Task(velR, velL, t, getStandardTaskExecution(),getStandardTaskCondition());
     }
 
     public static TaskQueue getNewMoveToTaskQueue(int velR, int velL, int x, int y){
@@ -113,5 +132,59 @@ public class Task {
 
         qu.addAll(getNewMoveToTaskQueue(velR, velL, (int) target.x, (int) target.y));
         return qu;
+    }
+
+
+    private static Task getPrimitiveTaskTurn(final int degree){
+        TaskExecution exec = new TaskExecution() {
+            @Override
+            public void execution(Task t) {
+                ControlManager.getInstance().robotTurn((byte) degree);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                OdometryManager.getInstance().getCurrentPosition().add(new RobotPosVector(0, 0, degree));
+            }
+        };
+
+        TaskCondition condition = new TaskCondition() {
+            @Override
+            public boolean taskFinishCondition() {
+                return true;
+            }
+        };
+
+        return new Task(0, 0, OdometryManager.getInstance().getCurrentPosition(), exec, condition);
+    }
+
+
+
+
+    /*
+    STANDARD TASK CONDITION AND EXECUTIONS
+    */
+    public static TaskCondition getStandardTaskCondition(){
+        return new TaskCondition() {
+            @Override
+            public boolean taskFinishCondition() {
+                return ObstacleAvoidManager.getInstance().checkObstacle() ||
+                       OdometryManager.getInstance().checkTargetReached();
+            }
+        };
+    }
+
+    public static TaskExecution getStandardTaskExecution(){
+        return new TaskExecution() {
+            @Override
+            public void execution(Task t) {
+                OdometryManager.getInstance().setTargetPosition(t.getTarget());
+                OdometryManager.getInstance().setEventCallback(TaskManager.getInstance());
+                ObstacleAvoidManager.getInstance().setEventCallback(TaskManager.getInstance());
+                ControlManager.getInstance().robotSetVelocity((byte) t.getVelocityLeft(), (byte) t.getVelocityRight());
+                MainActivity.getInstance().startManagers();
+            }
+        };
     }
 }

@@ -66,9 +66,6 @@ public class OdometryManager {
             public void run() {
                 while(control.ROBOT_MOVING) {
                         update();
-                        if (hasTarget){
-                            checkTargetReached();
-                        }
                         try {
                             Thread.sleep(sleepTime);
                         } catch (Exception e) {
@@ -146,11 +143,14 @@ public class OdometryManager {
     }
 
 
-    private void checkTargetReached(){
+    public boolean checkTargetReached(){
+        if (!hasTarget) return true;
         if (currentPosition.isAtWithAngle(targetPosition)){
             MainActivity.getInstance().threadSafeDebugOutput("Target reached odo: "+targetPosition);
             targetReached();
+            return true;
         }
+        return false;
     }
 
     private void targetReached(){

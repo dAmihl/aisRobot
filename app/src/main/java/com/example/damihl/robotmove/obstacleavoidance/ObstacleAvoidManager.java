@@ -2,6 +2,7 @@ package com.example.damihl.robotmove.obstacleavoidance;
 
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
+import com.example.damihl.robotmove.sensors.SensorManager;
 import com.example.damihl.robotmove.tasks.Task;
 import com.example.damihl.robotmove.tasks.TaskManager;
 import com.example.damihl.robotmove.tasks.TaskQueue;
@@ -39,13 +40,11 @@ public class ObstacleAvoidManager {
     }
 
     public boolean checkObstacle(){
-        String sensorData = this.controlManager.getSensorData();
 
-        String arr[] = sensorData.split(" ");
 
-        int valueRight = Integer.parseInt(arr[arr.length -5].substring(2), 16);
-        int valueMid = Integer.parseInt(arr[arr.length -4].substring(2), 16);
-        int valueLeft = Integer.parseInt(arr[arr.length -6].substring(2), 16);
+        int valueLeft = SensorManager.getInstance().getLeftSensorData();
+        int valueRight = SensorManager.getInstance().getRightSensorData();
+        int valueMid = SensorManager.getInstance().getMidSensorData();
 
         //application.threadSafeDebugOutput("Value Sensor 1 Left: "+valueLeft+" Sensor 2 Mid: "+valueMid+" Sensor 3 Right:"+valueRight);
 
@@ -63,7 +62,6 @@ public class ObstacleAvoidManager {
             return true;
         }
 
-        application.threadSafeSensorDataOutput(arr);
 
         return false;
     }
