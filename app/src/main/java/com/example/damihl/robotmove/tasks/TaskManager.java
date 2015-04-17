@@ -73,6 +73,8 @@ public class TaskManager implements EventCallback {
         MainActivity.getInstance().startManagers();
     }
 
+
+
     private void startNewTaskThread(Task t){
         taskThread = new TaskThread(t, this);
         taskThread.start();
@@ -86,9 +88,10 @@ public class TaskManager implements EventCallback {
 
     @Override
     public void obstacleFoundCallback() {
-       /* RobotPosVector oldTarget = currentTask.getTarget();
-        ControlManager.getInstance().robotStop();
-        ObstacleAvoidManager.getInstance().avoidObstacleBug0(oldTarget);*/
+            RobotPosVector oldTarget = OdometryManager.getInstance().getTargetPosition();
+            MainActivity.getInstance().threadSafeDebugOutput("Obstacle now gets avoided maybe?!");
+            ControlManager.getInstance().robotStop();
+            ObstacleAvoidManager.getInstance().avoidObstacleBug0(oldTarget);
     }
 
     @Override

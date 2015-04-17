@@ -37,7 +37,14 @@ public class ObstacleAvoidManager {
         this.controlManager = ControlManager.getInstance();
         this.application = MainActivity.getInstance();
         this.obstacleFoundEventCallback = TaskManager.getInstance();
+
     }
+
+    public void joinThread() throws InterruptedException {
+        if (this.obstThread != null)
+            this.obstThread.join();
+    }
+
 
     public boolean checkObstacle(){
 
@@ -48,16 +55,17 @@ public class ObstacleAvoidManager {
 
         //application.threadSafeDebugOutput("Value Sensor 1 Left: "+valueLeft+" Sensor 2 Mid: "+valueMid+" Sensor 3 Right:"+valueRight);
 
-        if(valueLeft <= 20){
+        if(valueLeft <= 20 && valueLeft > 1){
             application.threadSafeDebugOutput("Obstacle Sensor Left "+valueLeft);
             return true;
+            //return false;
         }
-        if(valueMid <= 10){
+        if(valueMid <= 10 && valueMid > 1){
             application.threadSafeDebugOutput("Obstacle Sensor Mid"+valueMid);
             return true;
 
         }
-        if(valueRight <= 20){
+        if(valueRight <= 20 && valueMid > 1){
             application.threadSafeDebugOutput("Obstacle Sensor Right "+valueRight);
             return true;
         }
@@ -73,7 +81,7 @@ public class ObstacleAvoidManager {
             public void run() {
                 while(control.ROBOT_MOVING) {
                     if (checkObstacle()){
-                        obstacleFoundEventCallback.obstacleFoundCallback();
+                        //obstacleFoundEventCallback.obstacleFoundCallback();
                         appl.threadSafeDebugOutput("obstacle found!");
                     }
                     try {
@@ -89,12 +97,13 @@ public class ObstacleAvoidManager {
 
     public void startObstacleDetection(final ControlManager control, final MainActivity appl){
         try {
-            initObstThread(appl, control);
+           // while (obstThread.isAlive());
+           // initObstThread(appl, control);
             obstThread.start();
         }catch(Exception e){
-            appl.printDebugText("obstacle avoid error: "+e);
+            appl.threadSafeDebugOutput("obstacle avoid error: "+e);
         }
-        appl.printDebugText("obstacle avoid started");
+        appl.threadSafeDebugOutput("obstacle avoid started");
     }
 
 
@@ -111,7 +120,7 @@ public class ObstacleAvoidManager {
 
         for (int i = 0; i < numSteps; i++) {
             if (checkObstacle()) {
-                application.printDebugText("Obstacle detected! Robot stops!");
+                application.threadSafeDebugOutput("Obstacle detected! Robot stops!");
                 controlManager.robotSetVelocity((byte) 0, (byte) 0);
             } else {
                 controlManager.robotDrive((byte) SAFE_STEP_SIZE);
@@ -121,10 +130,13 @@ public class ObstacleAvoidManager {
     }
 
     public void avoidObstacleBug0(RobotPosVector toTarget){
-        TaskQueue queue = Task.getNewMoveByRightTaskQueue(20, 20, 1000);
+        MainActivity.getInstance().threadSafeDebugOutput("Bug0 starting");
+        TaskQueue queue = new TaskQueue();
+        queue.add(Task.getNewTurnTask(90));
+        //queue.addAll(Task.getNewMoveByRightTaskQueue(20, 20, 1000));
         int x = (int) toTarget.x;
         int y = (int) toTarget.y;
-        queue.addAll(Task.getNewMoveToTaskQueue(20, 20, x,y));
+        //queue.addAll(Task.getNewMoveToTaskQueue(20, 20, x,y));
         TaskManager.getInstance().executeTaskQueue(queue);
     }
 

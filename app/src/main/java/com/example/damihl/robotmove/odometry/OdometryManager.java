@@ -59,6 +59,11 @@ public class OdometryManager {
         this.targetReachEventCallback = TaskManager.getInstance();
     }
 
+    public void joinThread() throws InterruptedException {
+        if (this.odoThread != null)
+            this.odoThread.join();
+    }
+
     public void initOdoThread(final MainActivity appl, final ControlManager control){
         odoThread = new Thread(new Runnable(){
 
@@ -123,12 +128,14 @@ public class OdometryManager {
 
     public void startOdometry(final ControlManager control, final MainActivity appl){
         try {
-            initOdoThread(appl, control);
+            //while (odoThread.isAlive());
+
+            //initOdoThread(appl, control);
             odoThread.start();
         }catch(Exception e){
-            appl.printDebugText("odometry error: "+e);
+            appl.threadSafeDebugOutput("odometry error: "+e);
         }
-        appl.printDebugText("odometry started");
+        appl.threadSafeDebugOutput("odometry started");
     }
 
 

@@ -57,7 +57,7 @@ public class Task {
     STANDARD MOVEMENT TASKS
      */
     public static Task getNewTurnTask(float byDegree){
-        RobotPosVector t = OdometryManager.getInstance().getCurrentPosition().add(new RobotPosVector(0, 0, byDegree+9));
+        RobotPosVector t = OdometryManager.getInstance().getCurrentPosition().add(new RobotPosVector(0, 0, byDegree));
         MainActivity.getInstance().threadSafeDebugOutput("Turn Target: "+t);
         int turnSpeed = 20;
         int left;
@@ -70,7 +70,16 @@ public class Task {
             left = -turnSpeed;
             right = turnSpeed;
         }
-        return new Task(right, left, t, getStandardTaskExecution(), getStandardTaskCondition());
+
+        TaskCondition cond = new TaskCondition() {
+
+            @Override
+            public boolean taskFinishCondition() {
+                return OdometryManager.getInstance().checkTargetReached();
+            }
+        };
+
+        return new Task(right, left, t, getStandardTaskExecution(), cond);
     }
 
     public static Task getNewTurnToTask(float toDegree){
@@ -126,7 +135,7 @@ public class Task {
 
         RobotPosVector move = new RobotPosVector((float)(moveBy * Math.cos(Math.toRadians(currentAngle + angle))),
                 (float)(moveBy * Math.sin(Math.toRadians(currentAngle + angle))),
-                currentAngle);
+                currentAngle + angle);
 
         RobotPosVector target = OdometryManager.getInstance().getCurrentPosition().add(move);
 
@@ -135,7 +144,7 @@ public class Task {
     }
 
 
-    private static Task getPrimitiveTaskTurn(final int degree){
+    public static Task getPrimitiveTaskTurn(final int degree){
         TaskExecution exec = new TaskExecution() {
             @Override
             public void execution(Task t) {
@@ -169,8 +178,15 @@ public class Task {
         return new TaskCondition() {
             @Override
             public boolean taskFinishCondition() {
-                return ObstacleAvoidManager.getInstance().checkObstacle() ||
-                       OdometryManager.getInstance().checkTargetReached();
+                if (ObstacleAvoidManager.getInstance().checkObstacle()){
+                    TaskManager.getInstance().obstacleFoundCallback();
+                    return true;
+                }
+                if (OdometryManager.getInstance().checkTargetReached()){
+                    TaskManager.getInstance().targetReachedCallback();
+                    return true;
+                }
+                return false;
             }
         };
     }
@@ -182,6 +198,7 @@ public class Task {
                 OdometryManager.getInstance().setTargetPosition(t.getTarget());
                 OdometryManager.getInstance().setEventCallback(TaskManager.getInstance());
                 ObstacleAvoidManager.getInstance().setEventCallback(TaskManager.getInstance());
+                MainActivity.getInstance().joinManagerThreads();
                 ControlManager.getInstance().robotSetVelocity((byte) t.getVelocityLeft(), (byte) t.getVelocityRight());
                 MainActivity.getInstance().startManagers();
             }

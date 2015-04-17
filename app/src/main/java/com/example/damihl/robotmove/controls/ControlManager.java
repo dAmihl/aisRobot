@@ -137,7 +137,7 @@ public class ControlManager {
             try{
                 ftDriver.write(data);
             } catch (Exception e){
-               application.printDebugText(e.toString());
+               application.threadSafeDebugOutput(e.toString());
             }
         } else {
         }

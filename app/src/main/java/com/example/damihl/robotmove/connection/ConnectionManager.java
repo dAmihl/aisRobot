@@ -29,6 +29,7 @@ public class ConnectionManager {
 
     private ConnectionManager(){
         this.application = MainActivity.getInstance();
+        initUSB();
     }
 
 
@@ -39,9 +40,9 @@ public class ConnectionManager {
 
     public boolean connect(){
             if (com.begin(9600)) {
-                application.printDebugText("connected");
+                application.threadSafeDebugOutput("connected");
             } else {
-                application.printDebugText("could not connect");
+                application.threadSafeDebugOutput("could not connect");
             }
         return com.isConnected();
     }
@@ -50,7 +51,7 @@ public class ConnectionManager {
     public void disconnect() {
         com.end();
         if (!com.isConnected()) {
-            application.printDebugText("disconnected");
+            application.threadSafeDebugOutput("disconnected");
         }
     }
 

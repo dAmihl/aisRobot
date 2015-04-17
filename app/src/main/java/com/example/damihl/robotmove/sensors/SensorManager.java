@@ -36,13 +36,17 @@ public class SensorManager {
     private Thread sensorThread;
 
 
+    public void joinThread() throws InterruptedException {
+        if (this.sensorThread != null)
+            this.sensorThread.join();
+    }
 
     public void updateSensorData(){
 
         String sensorData = this.controlManager.getSensorData();
 
         String arr[] = sensorData.split(" ");
-
+        if (arr.length < 5) return;
         int valueRight = Integer.parseInt(arr[arr.length -5].substring(2), 16);
         int valueMid = Integer.parseInt(arr[arr.length -4].substring(2), 16);
         int valueLeft = Integer.parseInt(arr[arr.length -6].substring(2), 16);
@@ -90,12 +94,14 @@ public class SensorManager {
 
     public void startSensorThread(final ControlManager control, final MainActivity appl){
         try {
-            initSensorThread(appl, control);
+            //while (sensorThread.isAlive());
+
+            //initSensorThread(appl, control);
             sensorThread.start();
         }catch(Exception e){
-            appl.printDebugText("sensor error: "+e);
+            appl.threadSafeDebugOutput("sensor error: "+e);
         }
-        appl.printDebugText("sensor started");
+        appl.threadSafeDebugOutput("sensor started");
     }
 
 }

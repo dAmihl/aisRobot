@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -184,9 +185,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return CoordMoveFragment.newInstance(position);
             }else if (position == FRAGMENT_PATHS_INDEX){
                 return PathsFragment.newInstance(position);
-            }else if (position == FRAGMENT_CAMERA_INDEX){
+            }/*else if (position == FRAGMENT_CAMERA_INDEX){
                 return CameraFragment.newInstance(position);
-            }else{
+            }*/else{
                 return PlaceholderFragment.newInstance(position + 1);
             }
 
@@ -273,6 +274,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         this.obstacleManager = ObstacleAvoidManager.getInstance();
         this.pathManager = PathDriveManager.getInstance();
         this.sensorManager = SensorManager.getInstance();
+        initThreads();
+
+    }
+
+    private void initThreads(){
+        this.odometryManager.initOdoThread(this, controlManager);
+        this.sensorManager.initSensorThread(this, controlManager);
+        this.obstacleManager.initObstThread(this, controlManager);
 
     }
 
@@ -288,7 +297,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void onButtonMoveClick(View v){
             if (checkConnection()) {
-                printDebugText("driving");
                 moveStandard();
             }
     }
@@ -347,17 +355,61 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 x = 2000;
                 y = 2000;
             }*/
-            TaskQueue moveTowardsTask = Task.getNewMoveToTaskQueue(15, 15, x, y);
-            TaskManager.getInstance().executeTaskQueue(moveTowardsTask);
+
+            try {
+                TaskQueue moveTowardsTask = Task.getNewMoveToTaskQueue(15, 15, x, y);
+                TaskManager.getInstance().executeTaskQueue(moveTowardsTask);
+            }catch (Exception e){
+                threadSafeDebugOutput("error" + e);
+                ControlManager.getInstance().robotStop();
+            }
+        }
+    }
+
+    /*
+    Not used by now. Tasks execution methods (TaskThreads) use joinManagerThreads() to wait for all managers to finish
+     */
+    public void joinManagerThreadsInNewThread(){
+
+        Thread joins = new Thread(new Runnable(){
+
+            @Override
+            public void run() {
+                try {
+                    odometryManager.joinThread();
+                    sensorManager.joinThread();
+                    obstacleManager.joinThread();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                startManagers();
+            }
+        });
+
+        joins.start();
+
+    }
+
+
+    /*
+    Used by Task Threads (in Task execution methods) to wait for running manager threads
+     */
+    public void joinManagerThreads(){
+        try {
+            odometryManager.joinThread();
+            sensorManager.joinThread();
+            obstacleManager.joinThread();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
 
     public void startManagers(){
+        initThreads();
         odometryManager.startOdometry(ControlManager.getInstance(), instance);
         obstacleManager.startObstacleDetection(ControlManager.getInstance(), instance);
         sensorManager.startSensorThread(ControlManager.getInstance(), instance);
-
     }
 
     public void moveStandard(){
@@ -428,12 +480,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         });
     }
 
-    public void printDebugText(String db){
+
+    private void printDebugText(String db){
         TextView debugText = (TextView)
                 findViewById(R.id.debugText);
         //debugText.setText(db);
         //debugText.append(new Date()+": "+db+"\n");
-        debugText.append(db+"\n");
+       // debugText.append(db+"\n");
+        Log.d("DEB", db);
         //debugText.setText(db);
     }
 
@@ -446,7 +500,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return true;
         }else{
             connection.setText("disconnected");
-            printDebugText("not connected");
+            threadSafeDebugOutput("disconnected");
             return false;
         }
     }
