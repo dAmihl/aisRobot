@@ -3,6 +3,7 @@ package com.example.damihl.robotmove.paths;
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
+import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.tasks.Task;
 import com.example.damihl.robotmove.tasks.TaskQueue;
 
@@ -64,13 +65,22 @@ public class PathDriveManager {
         int speedR = 15;
         int speedL = 15;
 
-        queue.add(Task.getNewMoveTask(speedR, speedL, size, 0));
-        queue.add(Task.getNewTurnTask(90));
-        queue.add(Task.getNewMoveTask(speedR, speedL, size, size));
-        queue.add(Task.getNewTurnTask(90));
-        queue.add(Task.getNewMoveTask(speedR, speedL, 0, size));
-        queue.add(Task.getNewTurnTask(90));
-        queue.add(Task.getNewMoveTask(speedR, speedL, 0, 0));
+        int originX = (int) OdometryManager.getInstance().getCurrentPosition().x;
+        int originY = (int) OdometryManager.getInstance().getCurrentPosition().y;
+
+        //queue.addAll(Task.getNewMoveToTaskQueue(20, 20, size,originY));
+        queue.add(Task.getNewMoveTask(20,20,size,0));
+        queue.add(Task.getNewTurnToTask(20,20,size,size));
+        queue.add(Task.getNewMoveTask(20,20,size,size));
+        queue.add(Task.getNewTurnToTask(20,20,0,size));
+        queue.add(Task.getNewMoveTask(20,20,0,size));
+        queue.add(Task.getNewTurnToTask(20,20,0,0));
+        queue.add(Task.getNewMoveTask(20,20,0,0));
+
+
+        //queue.addAll(Task.getNewMoveToTaskQueue(20,20,size,size));
+       // queue.addAll(Task.getNewMoveToTaskQueue(20,20,originX,size));
+       // queue.addAll(Task.getNewMoveToTaskQueue(20,20,originX,originY));
 
         return queue;
     }

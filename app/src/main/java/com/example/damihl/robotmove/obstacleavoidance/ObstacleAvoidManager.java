@@ -132,11 +132,13 @@ public class ObstacleAvoidManager {
     public void avoidObstacleBug0(RobotPosVector toTarget){
         MainActivity.getInstance().threadSafeDebugOutput("Bug0 starting");
         TaskQueue queue = new TaskQueue();
-        queue.add(Task.getNewTurnTask(90));
+       // queue.add(Task.getNewTurnTask(90));
         //queue.addAll(Task.getNewMoveByRightTaskQueue(20, 20, 1000));
+
+
         int x = (int) toTarget.x;
         int y = (int) toTarget.y;
-        //queue.addAll(Task.getNewMoveToTaskQueue(20, 20, x,y));
+       // queue.addAll(Task.getNewMoveToTaskQueue(20, 20, x,y));
         TaskManager.getInstance().executeTaskQueue(queue);
     }
 

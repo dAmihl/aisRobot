@@ -335,7 +335,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void onButtonDriveSquareClick(View v){
         if (checkConnection()){
-            TaskQueue squareTask = PathDriveManager.getInstance().getSquareTestPath(2000);
+            TaskQueue squareTask = PathDriveManager.getInstance().getSquareTestPath(20);
             TaskManager.getInstance().executeTaskQueue(squareTask);
         }
     }

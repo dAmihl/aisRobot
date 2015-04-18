@@ -6,7 +6,7 @@ package com.example.damihl.robotmove.utils;
 public class RobotPosVector {
 
 
-    private static final int STANDARD_POSITION_OFFSET = 5;
+    private static final int STANDARD_POSITION_OFFSET = 2;
     private static final int STANDARD_ANGLE_OFFSET = 5;
     private static final int CALIBRATION_ANGLE_OFFSET = 0;
 

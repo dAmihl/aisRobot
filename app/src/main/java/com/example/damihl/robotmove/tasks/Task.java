@@ -1,5 +1,7 @@
 package com.example.damihl.robotmove.tasks;
 
+import android.util.Log;
+
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
@@ -82,27 +84,33 @@ public class Task {
             }
         };
 
-        return new Task(right, left, t, getStandardTaskExecution(), cond);
+        return new Task(right, left, t, getStandardMoveTaskExecution(), cond);
     }
 
-    public static Task getNewTurnToTask(float toDegree){
-        float byDegree = (toDegree - OdometryManager.getInstance().getCurrentPosition().getAngle());
-        MainActivity.getInstance().threadSafeDebugOutput("Turning. CurrDeg: "+
-                OdometryManager.getInstance().getCurrentPosition().getAngle()+"/ ToDeg: "+toDegree+" and byDeg: "+byDegree);
-        return getNewTurnTask(byDegree);
+    public static Task getNewTurnToTask(int velR, int velL, int x, int y){
+        //float byDegree = (toDegree - OdometryManager.getInstance().getCurrentPosition().getAngle());
+        /*MainActivity.getInstance().threadSafeDebugOutput("Turning. CurrDeg: "+
+                OdometryManager.getInstance().getCurrentPosition().getAngle()+"/ ToDeg: "+toDegree+" and byDeg: "+byDegree);*/
+
+        RobotPosVector t = new RobotPosVector(x, y, 0);
+        return new Task(velR, velL, t, getStandardTurnTaskExecution(), getStandardTurnTaskCondition());
     }
 
-    public static Task createNewTask(int velR, int velL, RobotPosVector t){
-        return new Task(velR, velL, t, getStandardTaskExecution(),getStandardTaskCondition());
+    public static Task createNewTurnTask(int velR, int velL, RobotPosVector t){
+        return new Task(velR, velL, t, getStandardTurnTaskExecution(),getStandardTurnTaskCondition());
+    }
+
+    public static Task createNewMoveTask(int velR, int velL, RobotPosVector t){
+        return new Task(velR, velL, t, getStandardMoveTaskExecution(),getStandardTaskCondition());
     }
 
     public static TaskQueue getNewMoveToTaskQueue(int velR, int velL, int x, int y){
         TaskQueue queue = new TaskQueue();
-        RobotPosVector moveTarget = new RobotPosVector(x, y, 0);
-        float angle = OdometryManager.getInstance().getCurrentPosition().angle2goal((moveTarget));
-        Task turnTask = getNewTurnToTask(angle);
-        MainActivity.getInstance().threadSafeDebugOutput("TurnTaskTarget: "+turnTask.getTarget());
+
+        Task turnTask = getNewTurnToTask(velR, velL, x, y);
+        MainActivity.getInstance().threadSafeDebugOutput("TurnTaskTarget: " + turnTask.getTarget());
         queue.add(turnTask);
+
 
         Task moveTask = getNewMoveTask(velR, velL, x, y);
 
@@ -114,7 +122,7 @@ public class Task {
 
     public static Task getNewMoveTask(int velR, int velL, int x, int y){
         RobotPosVector target = new RobotPosVector(x, y, OdometryManager.getInstance().getCurrentPosition().getAngle());
-        return createNewTask(velR, velL, target);
+        return createNewMoveTask(velR, velL, target);
     }
 
     public static TaskQueue getNewMoveByLeftTaskQueue(int velR, int velL, int moveBy){
@@ -133,7 +141,7 @@ public class Task {
     private static TaskQueue getNewMoveByTaskQueue(int velR, int velL, int moveBy, float angle){
 
         TaskQueue qu = new TaskQueue();
-        qu.add(Task.getNewTurnTask(angle));
+        qu.add(Task.getNewTurnToTask(velR, velL, (int) (moveBy * Math.cos(Math.toRadians(angle))), (int) (moveBy * Math.sin(Math.toRadians(angle)))));
         float currentAngle = OdometryManager.getInstance().getCurrentPosition().getAngle();
 
         RobotPosVector move = new RobotPosVector((float)(moveBy * Math.cos(Math.toRadians(currentAngle + angle))),
@@ -185,7 +193,7 @@ public class Task {
                     TaskManager.getInstance().obstacleFoundCallback();
                     return true;
                 }
-                if (OdometryManager.getInstance().checkTargetReached()){
+                if (OdometryManager.getInstance().getCurrentPosition().isAt(OdometryManager.getInstance().getTargetPosition())){
                     TaskManager.getInstance().targetReachedCallback();
                     return true;
                 }
@@ -194,10 +202,66 @@ public class Task {
         };
     }
 
-    public static TaskExecution getStandardTaskExecution(){
+
+    public static TaskCondition getStandardTurnTaskCondition(){
+        return new TaskCondition() {
+
+            @Override
+            public boolean taskFinishCondition() {
+                return OdometryManager.getInstance().checkTargetReached();
+            }
+        };
+    }
+
+    public static TaskExecution getStandardMoveTaskExecution(){
         return new TaskExecution() {
             @Override
             public void execution(Task t) {
+                Log.d("MOVETASK", "movetask to "+t.getTarget());
+                OdometryManager.getInstance().setTargetPosition(t.getTarget());
+                OdometryManager.getInstance().setEventCallback(TaskManager.getInstance());
+                ObstacleAvoidManager.getInstance().setEventCallback(TaskManager.getInstance());
+                MainActivity.getInstance().joinManagerThreads();
+                ControlManager.getInstance().robotSetVelocity((byte) t.getVelocityLeft(), (byte) t.getVelocityRight());
+                MainActivity.getInstance().startManagers();
+            }
+        };
+    }
+
+    public static TaskExecution getStandardTurnTaskExecution(){
+        return new TaskExecution() {
+            @Override
+            public void execution(Task t) {
+
+                RobotPosVector moveTarget = t.getTarget();
+                float angle = OdometryManager.getInstance().getCurrentPosition().angle2goal((moveTarget));
+                Log.d("TURNTASK", "angle to goal: "+angle);
+                RobotPosVector effTarget = new RobotPosVector(OdometryManager.getInstance().getCurrentPosition().x,
+                        OdometryManager.getInstance().getCurrentPosition().y, angle);
+
+                t.target = effTarget;
+
+                int turnSpeed = Math.min(Math.abs(t.getVelocityLeft()), Math.abs(t.getVelocityRight()));
+                int left = 0;
+                int right = 0;
+
+                if (angle > 0){
+                    left =  turnSpeed;
+                    right = -turnSpeed;
+                }else{
+                    left = -turnSpeed;
+                    right = turnSpeed;
+                    t.target.addAngle(360);
+                }
+
+                t.velocityLeft = left;
+                t.velocityRight = right;
+
+                if (Math.abs(angle) < 5) {
+                    TaskManager.getInstance().taskFinished();
+                    return;
+                }
+
                 OdometryManager.getInstance().setTargetPosition(t.getTarget());
                 OdometryManager.getInstance().setEventCallback(TaskManager.getInstance());
                 ObstacleAvoidManager.getInstance().setEventCallback(TaskManager.getInstance());
