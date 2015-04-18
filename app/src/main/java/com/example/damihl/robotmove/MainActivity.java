@@ -345,8 +345,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             TextView xCoord = (TextView) findViewById(R.id.moveToX);
             TextView yCoord = (TextView) findViewById(R.id.moveToY);
 
-            int x = 2000;
-            int y = 2000;
+            int x = -50;
+            int y = 50;
 
            /* if (xCoord.getTextSize() > 0) {
                 x = Integer.parseInt(xCoord.getText().toString());
@@ -452,7 +452,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
             @Override
             public void run() {
-                setOdometryData(v.x, v.y, v.angle);
+                setOdometryData(v.x, v.y, v.getAngle());
             }
         });
     }
