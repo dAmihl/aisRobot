@@ -10,7 +10,17 @@ import com.example.damihl.robotmove.tasks.TaskQueue;
 import java.util.LinkedList;
 
 /**
+ * <br />
  * Created by dAmihl on 13.03.15.
+ * <br />
+ * <br />
+ * <b>
+ * PathDriveManager:
+ * </b>
+ * <br />
+ * This singleton class lets the robot drive a certain path<br />
+ * implemented pathes are: <br />
+ * &nbsp; &nbsp; <i>driveSqaure()</i>
  */
 public class PathDriveManager {
 
