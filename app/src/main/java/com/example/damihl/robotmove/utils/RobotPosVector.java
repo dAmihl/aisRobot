@@ -6,13 +6,13 @@ package com.example.damihl.robotmove.utils;
 public class RobotPosVector {
 
 
-    private static final int STANDARD_POSITION_OFFSET = 100;
-    private static final int STANDARD_ANGLE_OFFSET = 2;
+    private static final int STANDARD_POSITION_OFFSET = 5;
+    private static final int STANDARD_ANGLE_OFFSET = 5;
     private static final int CALIBRATION_ANGLE_OFFSET = 0;
 
     public float x;
     public float y;
-    public float angle;
+    private float angle;
 
     public RobotPosVector(float x, float y, float theta){
         this.x = x;
@@ -32,6 +32,10 @@ public class RobotPosVector {
         return angle;
     }
 
+    public void addAngle(float addTo){
+        this.angle += addTo;
+        this.angle = this.angle % 360;
+    }
 
     public RobotPosVector add(RobotPosVector other){
         this.x += other.x;
@@ -90,7 +94,13 @@ public class RobotPosVector {
 
     public float angle2goal(RobotPosVector other){
         double alpha = 0;
-        alpha = ((Math.atan2 ((double)(other.y - this.y), ((double)(other.x - this.x))) * 180/Math.PI));
+       // alpha = ((Math.atan2 ((double)(other.y - this.y), ((double)(other.x - this.x))) * 180/Math.PI));
+        alpha = ((Math.atan2 ((double)(other.y - this.y), ((double)(other.x - this.x)))));
+
+        alpha = Math.toDegrees(alpha);
+        alpha = alpha % 360;
+        return (float) alpha;
+        /*
         double theta_wrap = this.angle*180/Math.PI;
         if(theta_wrap > 180){
             theta_wrap = theta_wrap - 360;
@@ -99,7 +109,7 @@ public class RobotPosVector {
         }
         double angle2goal = alpha - theta_wrap;
 
-        return (float)angle2goal;
+        return (float)angle2goal;*/
     }
 
     public double distance2mline(RobotPosVector goal){

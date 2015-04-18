@@ -65,7 +65,10 @@ public class Task {
     STANDARD MOVEMENT TASKS
      */
     public static Task getNewTurnTask(float byDegree){
-        RobotPosVector t = OdometryManager.getInstance().getCurrentPosition().add(new RobotPosVector(0, 0, byDegree));
+        //RobotPosVector t = OdometryManager.getInstance().getCurrentPosition().add(new RobotPosVector(0, 0, byDegree));
+        RobotPosVector t = new RobotPosVector(OdometryManager.getInstance().getCurrentPosition().x + 0,
+                OdometryManager.getInstance().getCurrentPosition().y + 0,
+                OdometryManager.getInstance().getCurrentPosition().getAngle() + byDegree);
         MainActivity.getInstance().threadSafeDebugOutput("Turn Target: "+t);
         int turnSpeed = 20;
         int left;
@@ -91,9 +94,9 @@ public class Task {
     }
 
     public static Task getNewTurnToTask(float toDegree){
-        float byDegree = (toDegree - OdometryManager.getInstance().getCurrentPosition().angle);
+        float byDegree = (toDegree - OdometryManager.getInstance().getCurrentPosition().getAngle());
         MainActivity.getInstance().threadSafeDebugOutput("Turning. CurrDeg: "+
-                OdometryManager.getInstance().getCurrentPosition().angle+"/ ToDeg: "+toDegree+" and byDeg: "+byDegree);
+                OdometryManager.getInstance().getCurrentPosition().getAngle()+"/ ToDeg: "+toDegree+" and byDeg: "+byDegree);
         return getNewTurnTask(byDegree);
     }
 
@@ -118,7 +121,7 @@ public class Task {
     }
 
     public static Task getNewMoveTask(int velR, int velL, int x, int y){
-        RobotPosVector target = new RobotPosVector(x, y, OdometryManager.getInstance().getCurrentPosition().angle);
+        RobotPosVector target = new RobotPosVector(x, y, OdometryManager.getInstance().getCurrentPosition().getAngle());
         return createNewTask(velR, velL, target);
     }
 
@@ -139,7 +142,7 @@ public class Task {
 
         TaskQueue qu = new TaskQueue();
         qu.add(Task.getNewTurnTask(angle));
-        float currentAngle = OdometryManager.getInstance().getCurrentPosition().angle;
+        float currentAngle = OdometryManager.getInstance().getCurrentPosition().getAngle();
 
         RobotPosVector move = new RobotPosVector((float)(moveBy * Math.cos(Math.toRadians(currentAngle + angle))),
                 (float)(moveBy * Math.sin(Math.toRadians(currentAngle + angle))),
