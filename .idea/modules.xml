@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/RobotMove.iml" filepath="$PROJECT_DIR$/RobotMove.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aisRobot.iml" filepath="$PROJECT_DIR$/aisRobot.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/ftdriver/ftdriver.iml" filepath="$PROJECT_DIR$/ftdriver/ftdriver.iml" />
       <module fileurl="file://$PROJECT_DIR$/FTDriver/ftdriver.iml" filepath="$PROJECT_DIR$/FTDriver/ftdriver.iml" />
