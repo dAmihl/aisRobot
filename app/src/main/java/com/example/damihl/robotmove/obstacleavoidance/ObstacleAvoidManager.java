@@ -10,7 +10,18 @@ import com.example.damihl.robotmove.utils.EventCallback;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 
 /**
+ * <br />
  * Created by dAmihl on 19.03.15.
+ * <br />
+ * <br />
+ * <b>
+ * ObstacleAvoidManager:
+ * </b>
+ * <br />
+ * This singleton class makes sure that the robot won't collide with an obstacle<br />
+ * The functionality is implemented in an own thread, which checks continuously for obstacles
+ * in a method called {@link com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager#checkObstacle()}. <br />
+ * If this method finds an obstacle it calls the {@link com.example.damihl.robotmove.tasks.TaskManager#obstacleFoundCallback()}
  */
 public class ObstacleAvoidManager {
 
@@ -46,6 +57,13 @@ public class ObstacleAvoidManager {
     }
 
 
+    /**
+     * checks for obstacles
+     * @return
+     *          <b>true</b> - if the value of the <i>left/right sensor</i> get below 20 <br />
+     *          <b>true</b> - if the value of the <i>center sensor</i> get below 10 <br />
+     *          <b>false</b> - otherwise
+     */
     public boolean checkObstacle(){
 
 
@@ -94,6 +112,7 @@ public class ObstacleAvoidManager {
 
         });
     }
+
 
     public void startObstacleDetection(final ControlManager control, final MainActivity appl){
         try {

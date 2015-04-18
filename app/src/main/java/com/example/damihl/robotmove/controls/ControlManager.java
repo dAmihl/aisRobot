@@ -10,8 +10,36 @@ import java.sql.Connection;
 import jp.ksksue.driver.serial.FTDriver;
 
 
+ // ToDo: put the api overview in a table
+ // -> html
 /**
  * Created by dAmihl on 09.03.15.
+ * <br />
+ * <br />
+ * <b>
+ * ControlManager:
+ * </b>
+ * <br />
+ * This singleton class provides an interface to the basic functions of th robot <br />
+ * The functionality provided by this class includes: <br />
+ * <hr />
+ * &nbsp;&nbsp;<i>robotSetBar()</i> - move the bar of the robot<br />
+ * &nbsp;&nbsp;<i>robotSetVelocity()- let robot move w\ a certain velocity</i> <br />
+ * &nbsp;&nbsp;<i>robotSetLeds()</i> - control the robots blue and red leds<br />
+ * &nbsp;&nbsp;<i>robotStop() - stop the robot</i> <br />
+ * &nbsp;&nbsp;<i>robotTurn() - turn the robot a certain angle</i> <br />
+ * &nbsp;&nbsp;<i>robotDrive() - let the robot drive a given distance in cm</i> <br />
+ * &nbsp;&nbsp;<i>getSensorData() - returns the read sensor data</i> <br />
+ * &nbsp;&nbsp;<i>pause() - lets the ControlManager rest for a specified time in ms</i>
+ * <hr />
+ * <br />
+ * further functions are: <br />
+ * <hr />
+ * <i>comRead()</i>
+ * <i>comWrite()</i>
+ * <i>comReadWrite()</i>
+ * <hr />
+ *
  */
 public class ControlManager {
 
@@ -40,8 +68,10 @@ public class ControlManager {
     }
 
 
-
-
+     /**
+      * move the bar of the robot
+      * @param value
+      */
     public void robotSetBar(byte value) {
         comReadWrite(
                 new byte[] { 'o', value, '\r', '\n' }

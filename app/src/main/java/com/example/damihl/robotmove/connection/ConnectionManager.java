@@ -9,7 +9,23 @@ import jp.ksksue.driver.serial.FTDriver;
 
 
 /**
+ * <br />
  * Created by dAmihl on 09.03.15.
+ * <br />
+ * <br />
+ * <b>
+ * ConnectionManager:
+ * </b>
+ * <br />
+ * This singleton class manages the connection to the robot <br />
+ *
+ * Important methodes of this class are: <br />
+ * <hr />
+ * &nbsp;&nbsp;<i>connect()</i><br />
+ * &nbsp;&nbsp;<i>disconnect()</i>
+ * <hr />
+ * @see ConnectionManager#connect()
+ * @see ConnectionManager#disconnect()
  */
 public class ConnectionManager {
 
@@ -38,6 +54,11 @@ public class ConnectionManager {
         return true;
     }
 
+    /**
+     * this method establish a connection to the robot
+     * @return <b>true</b> if successful and <br />
+     *         <b>false</b> otherwise
+     */
     public boolean connect(){
             if (com.begin(9600)) {
                 application.threadSafeDebugOutput("connected");
@@ -47,7 +68,9 @@ public class ConnectionManager {
         return com.isConnected();
     }
 
-
+    /**
+     * this method breaks the connection to the robot
+     */
     public void disconnect() {
         com.end();
         if (!com.isConnected()) {
