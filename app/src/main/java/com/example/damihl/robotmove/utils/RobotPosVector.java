@@ -84,4 +84,30 @@ public class RobotPosVector {
         return "("+x+"/"+y+"/"+angle+")";
     }
 
+    public double dist2goal(RobotPosVector other){
+        return Math.sqrt((other.x - this.x)*(other.x - this.x)+(other.y - this.y)*(other.y - this.y));
+    }
+
+    public float angle2goal(RobotPosVector other){
+        double alpha = 0;
+        alpha = ((Math.atan2 ((double)(other.y - this.y), ((double)(other.x - this.x))) * 180/Math.PI));
+        double theta_wrap = this.angle*180/Math.PI;
+        if(theta_wrap > 180){
+            theta_wrap = theta_wrap - 360;
+        }else if(theta_wrap < - 180){
+            theta_wrap = theta_wrap + 360;
+        }
+        double angle2goal = alpha - theta_wrap;
+
+        return (float)angle2goal;
+    }
+
+    public double distance2mline(RobotPosVector goal){
+        double distance = this.x * goal.y - this.y * goal.x;
+        if(distance > 0) return ((this.x * goal.y - this.y * goal.x)/(Math.sqrt(goal.y * goal.y + goal.x * goal.x)));
+        else return (-(this.x * goal.y - this.y * goal.x)/(Math.sqrt(goal.y * goal.y + goal.x * goal.x)));
+    }
+
+
+
 }

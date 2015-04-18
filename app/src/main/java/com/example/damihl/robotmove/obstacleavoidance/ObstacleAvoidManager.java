@@ -148,6 +148,20 @@ public class ObstacleAvoidManager {
 
     }
 
+    public void Bug2impl(RobotPosVector goal){
+        int state = 0;
+
+        // state 0 no obstacle ahead
+        if(state == 0){
+            if(checkObstacle()){
+               //obstacle ahead state 1
+               state = 1;
+            }
+        }else{
+            state = 0;
+
+        }
+    }
 
     public void setEventCallback(EventCallback called) {
         this.obstacleFoundEventCallback = called;

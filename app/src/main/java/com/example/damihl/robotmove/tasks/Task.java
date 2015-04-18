@@ -96,7 +96,7 @@ public class Task {
     public static TaskQueue getNewMoveToTaskQueue(int velR, int velL, int x, int y){
         TaskQueue queue = new TaskQueue();
         RobotPosVector moveTarget = new RobotPosVector(x, y, 0);
-        float angle = OdometryManager.getInstance().getCurrentPosition().angleBetween(moveTarget);
+        float angle = OdometryManager.getInstance().getCurrentPosition().angle2goal((moveTarget));
         Task turnTask = getNewTurnToTask(angle);
         MainActivity.getInstance().threadSafeDebugOutput("TurnTaskTarget: "+turnTask.getTarget());
         queue.add(turnTask);
