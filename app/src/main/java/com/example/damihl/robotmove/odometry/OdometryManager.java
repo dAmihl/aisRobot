@@ -7,7 +7,15 @@ import com.example.damihl.robotmove.utils.EventCallback;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 
 /**
- * Created by dAmihl on 23.03.15.
+ * <br />
+ * Created by dAmihl on 23.03.15. <br />
+ * <br />
+ * <br />
+ * <b>
+ * OdometryManager:
+ * </b>
+ * <br />
+ * This singleton class keeps track of the robots current position<br />
  */
 public class OdometryManager {
 
@@ -23,6 +31,7 @@ public class OdometryManager {
    // public final long sleepTime = (long) (1000 * dt);
     public final long sleepTime = 100;
 
+    // target
     private boolean hasTarget = false;
     private RobotPosVector targetPosition = null;
     private EventCallback targetReachEventCallback = null;
@@ -80,7 +89,7 @@ public class OdometryManager {
     }
 
 
-
+    /* initialize the robots position with (0,0,0)*/
     public void initState(){
         vl = 0;
         vr = 0;
@@ -92,6 +101,10 @@ public class OdometryManager {
 
     }
 
+    /**
+     * this method calculates the current position <br />
+     * and writes it into the corresponding fields;
+     */
     public void update(){
 
         vl = r*wl;
@@ -147,11 +160,18 @@ public class OdometryManager {
         targetReachEventCallback.targetReachedCallback();
     }
 
-
+    /**
+     * @return
+     *      a <i>RobotPosVector</i> with the estimated current Position
+     */
     public RobotPosVector getCurrentPosition(){
         return currentPosition;
     }
 
+    /**
+     * @return
+     *      the <i>RobotPosVector</i> of the target (relative to the start position, which is initialized as (0,0,0))
+     */
     public RobotPosVector getTargetPosition(){
         return targetPosition;
     }

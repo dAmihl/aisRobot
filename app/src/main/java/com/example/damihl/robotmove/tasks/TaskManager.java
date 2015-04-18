@@ -7,8 +7,25 @@ import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.utils.EventCallback;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 
-/**
+/*
  * Created by dAmihl on 06.04.15.
+ */
+
+/**
+ * Singleton class to manage the {@link Task}s the robot has to accomplish. <br />
+ * The functionality provided by this class includes: <br />
+ * <hr />
+ * &nbsp;&nbsp;<i>executeTask(Task)</i> - executes a given {@link Task} <br />
+ * &nbsp;&nbsp;<i>executeTaskQueue(TaskQueue)</i> - executes all given {@link Task}s in a {@link com.example.damihl.robotmove.tasks.TaskQueue} <br />
+ * &nbsp;&nbsp;<i>targetReachedCallback()</i> - robot stops in case it reached the target <br />
+ * <hr />
+ *
+ *
+ * @see #executeTask(Task)
+ * @see #executeTaskQueue(TaskQueue)
+ * @see #targetReachedCallback()
+ * @see com.example.damihl.robotmove.tasks.Task
+ * @see com.example.damihl.robotmove.tasks.TaskQueue
  */
 public class TaskManager implements EventCallback {
 

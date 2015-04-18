@@ -7,7 +7,15 @@ import com.example.damihl.robotmove.utils.RobotPosVector;
 import java.util.LinkedList;
 
 /**
+ * <br />
  * Created by dAmihl on 06.04.15.
+ * <br />
+ * <br />
+ * <b>
+ *     Task:
+ * </b>
+ * <br />
+ * a task the robot has to accomplish (i.e move to a specified target) <br />
  */
 public class Task {
 
