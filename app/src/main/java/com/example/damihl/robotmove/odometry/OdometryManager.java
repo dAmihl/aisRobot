@@ -22,6 +22,7 @@ public class OdometryManager {
     private final float r = 4.5f;
     private final float d = 20f;
     private final float dt = 100f;
+    private final float ANGLE_CALIBRATION_FACTOR = 1.1f;
     private final float u = (float) (2*r*Math.PI);
    // public final long sleepTime = (long) (1000 * dt);
     public final long sleepTime = 100;
@@ -106,6 +107,8 @@ public class OdometryManager {
 
 
 
+
+
         float oneRevolutionL = (float)(2*Math.PI/wl);
         float oneRevolutionR = (float)(2*Math.PI/wr);
         float ticksPerRevolutionL = oneRevolutionL / ((float)(sleepTime)/1000);
@@ -113,7 +116,7 @@ public class OdometryManager {
 
         float dsl = u / ticksPerRevolutionL;
         float dsr = u / ticksPerRevolutionR;
-        float dphi = (Math.max(dsl, dsr) - Math.min(dsl, dsr))   / d;
+        float dphi = (Math.max(dsl, dsr) - Math.min(dsl, dsr))   / (d * ((float)(sleepTime)/1000));
 
         Log.i("DPHI", "dphi : "+dphi+"dsl/dsr:"+dsl+"/"+dsr+" TPRL: "+ticksPerRevolutionL);
         Log.i("DPHI", "ORL: "+oneRevolutionL+" wl: "+wl);
@@ -121,7 +124,7 @@ public class OdometryManager {
         currentPosition.x = (currentPosition.x + (vRobot * (float) Math.cos(Math.toRadians(currentPosition.getAngle()))) / dt) ;
         currentPosition.y = (currentPosition.y + (vRobot * (float) Math.sin(Math.toRadians(currentPosition.getAngle()))) / dt) ;
 //        currentPosition.angle = currentPosition.angle + (wRobot * dt);
-        currentPosition.addAngle(dphi / dt);
+        currentPosition.addAngle(dphi * ANGLE_CALIBRATION_FACTOR);
         Log.i("Angle", "Current Robot Angle UPDATE: "+currentPosition.getAngle());
 
 
