@@ -7,7 +7,7 @@ public class RobotPosVector {
 
 
     private static final int STANDARD_POSITION_OFFSET = 2;
-    private static final int STANDARD_ANGLE_OFFSET = 5;
+    private static final int STANDARD_ANGLE_OFFSET = 5 ;
     private static final int CALIBRATION_ANGLE_OFFSET = 0;
 
     public float x;
@@ -34,13 +34,15 @@ public class RobotPosVector {
 
     public void addAngle(float addTo){
         this.angle += addTo;
+        if (this.angle < 0) this.angle = 360- Math.abs(this.angle);
         this.angle = this.angle % 360;
+
     }
 
     public RobotPosVector add(RobotPosVector other){
         this.x += other.x;
         this.y += other.y;
-        this.angle += other.angle;
+        this.addAngle(other.angle);
         return this;
     }
 

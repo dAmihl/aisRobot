@@ -1,5 +1,7 @@
 package com.example.damihl.robotmove.sensors;
 
+import android.util.Log;
+
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
 
@@ -10,7 +12,7 @@ public class SensorManager {
 
     private static SensorManager instance = null;
 
-    private final static int sleepTime = 100;
+    private final static int sleepTime = 500;
 
     public static SensorManager getInstance(){
         if (instance != null) return instance;
@@ -46,14 +48,22 @@ public class SensorManager {
         String sensorData = this.controlManager.getSensorData();
 
         String arr[] = sensorData.split(" ");
-        if (arr.length < 5) return;
-        int valueRight = Integer.parseInt(arr[arr.length -5].substring(2), 16);
-        int valueMid = Integer.parseInt(arr[arr.length -4].substring(2), 16);
-        int valueLeft = Integer.parseInt(arr[arr.length -6].substring(2), 16);
+        if (arr.length < 6) return;
+        try {
+        String strRight = arr[arr.length - 5].substring(2);
+        String strLeft = arr[arr.length - 6].substring(2);
+        String strMid = arr[arr.length - 4].substring(2);
 
-        leftSensorData = valueLeft;
-        midSensorData = valueMid;
-        rightSensorData = valueRight;
+            int valueRight = Integer.parseInt(strRight, 16);
+            int valueMid = Integer.parseInt(strMid, 16);
+            int valueLeft = Integer.parseInt(strLeft, 16);
+            leftSensorData = valueLeft;
+            midSensorData = valueMid;
+            rightSensorData = valueRight;
+        }catch(Exception e){
+            Log.e("SENSOREXCP", e.toString());
+        }
+
 
         MainActivity.getInstance().threadSafeSensorDataOutput(arr);
 

@@ -2,6 +2,7 @@ package com.example.damihl.robotmove.obstacleavoidance;
 
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.controls.ControlManager;
+import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.sensors.SensorManager;
 import com.example.damihl.robotmove.tasks.Task;
 import com.example.damihl.robotmove.tasks.TaskManager;
@@ -118,7 +119,7 @@ public class ObstacleAvoidManager {
         try {
            // while (obstThread.isAlive());
            // initObstThread(appl, control);
-            obstThread.start();
+            //obstThread.start();
         }catch(Exception e){
             appl.threadSafeDebugOutput("obstacle avoid error: "+e);
         }
@@ -148,16 +149,19 @@ public class ObstacleAvoidManager {
         }
     }
 
-    public void avoidObstacleBug0(RobotPosVector toTarget){
+    public void avoidObstacleBug0(){
+        RobotPosVector toTarget = TaskManager.getInstance().getNextTarget();
+        if (toTarget == null) return;
         MainActivity.getInstance().threadSafeDebugOutput("Bug0 starting");
         TaskQueue queue = new TaskQueue();
-       // queue.add(Task.getNewTurnTask(90));
-        //queue.addAll(Task.getNewMoveByRightTaskQueue(20, 20, 1000));
-
-
-        int x = (int) toTarget.x;
-        int y = (int) toTarget.y;
-       // queue.addAll(Task.getNewMoveToTaskQueue(20, 20, x,y));
+        queue.addAll(Task.getNewMoveByRightTaskQueue(20,20,20));
+        //queue.addAll(Task.getNewMoveByRightTaskQueue(20, 20, 10));
+        //RobotPosVector moveTarget = new RobotPosVector(OdometryManager.getInstance().getCurrentPosition().x, OdometryManager.getInstance().getCurrentPosition().y, OdometryManager.getInstance().getCurrentPosition().getAngle());
+        //float byAngle = (moveTarget.getAngle() + 90) % 360;
+        //moveTarget.add(new RobotPosVector(0,20,0));
+        //queue.addAll(Task.getNewMoveToTaskQueue(20,20, (int) moveTarget.x, (int) moveTarget.y));
+        //queue.addAll(Task.getNewMoveToTaskQueue(20,20,0,0));
+        queue.addAll(Task.getNewMoveToTaskQueue(20,20,(int) toTarget.x, (int) toTarget.y));
         TaskManager.getInstance().executeTaskQueue(queue);
     }
 

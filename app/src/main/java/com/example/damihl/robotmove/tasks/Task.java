@@ -149,14 +149,16 @@ public class Task {
     private static TaskQueue getNewMoveByTaskQueue(int velR, int velL, int moveBy, float angle){
 
         TaskQueue qu = new TaskQueue();
-        qu.add(Task.getNewTurnToTask(velR, velL, (int) (moveBy * Math.cos(Math.toRadians(angle))), (int) (moveBy * Math.sin(Math.toRadians(angle)))));
+        //qu.add(Task.getNewTurnToTask(velR, velL, (int) (moveBy * Math.cos(Math.toRadians(angle))), (int) (moveBy * Math.sin(Math.toRadians(angle)))));
         float currentAngle = OdometryManager.getInstance().getCurrentPosition().getAngle();
+        float effAngle = currentAngle + angle;
+        effAngle = effAngle % 360;
 
-        RobotPosVector move = new RobotPosVector((float)(moveBy * Math.cos(Math.toRadians(currentAngle + angle))),
-                (float)(moveBy * Math.sin(Math.toRadians(currentAngle + angle))),
-                currentAngle + angle);
+        RobotPosVector move = new RobotPosVector((float)(moveBy * Math.cos(Math.toRadians(effAngle))),
+                (float)(moveBy * Math.sin(Math.toRadians(effAngle))),
+                effAngle);
 
-        RobotPosVector target = OdometryManager.getInstance().getCurrentPosition().add(move);
+        RobotPosVector target = move.add(OdometryManager.getInstance().getCurrentPosition());
 
         qu.addAll(getNewMoveToTaskQueue(velR, velL, (int) target.x, (int) target.y));
         return qu;
@@ -216,7 +218,11 @@ public class Task {
 
             @Override
             public boolean taskFinishCondition() {
-                return OdometryManager.getInstance().checkTargetReached();
+                if (OdometryManager.getInstance().checkTargetReached()){
+                    TaskManager.getInstance().targetReachedCallback();
+                    return true;
+                }
+                return false;
             }
         };
     }
@@ -249,16 +255,20 @@ public class Task {
 
                 t.target = effTarget;
 
-                int turnSpeed = Math.min(Math.abs(t.getVelocityLeft()), Math.abs(t.getVelocityRight()));
-                int left = 0;
-                int right = 0;
+              //  int turnSpeed = Math.min(Math.abs(t.getVelocityLeft()), Math.abs(t.getVelocityRight()));
+                int turnSpeed = 12;
+                int left = turnSpeed;
+                int right = -turnSpeed;
 
                 if (angle > 0){
                     left =  turnSpeed;
                     right = -turnSpeed;
                 }else{
-                    left = -turnSpeed;
-                    right = turnSpeed;
+                   left = -turnSpeed;
+                   right = turnSpeed;
+                   // left =  turnSpeed;
+                   // right = -turnSpeed;
+
                     t.target.addAngle(360);
                 }
 
@@ -266,6 +276,7 @@ public class Task {
                 t.velocityRight = right;
 
                 if (Math.abs(angle) < 5) {
+                    Log.d("TURNTASK", "Angle to low. task finished");
                     TaskManager.getInstance().taskFinished();
                     return;
                 }

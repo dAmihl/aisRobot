@@ -8,5 +8,6 @@ public interface EventCallback {
     public void targetReachedCallback();
     public void obstacleFoundCallback();
     public void taskFinished();
+    public void taskAborted();
 
 }

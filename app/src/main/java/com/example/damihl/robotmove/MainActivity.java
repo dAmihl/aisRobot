@@ -66,6 +66,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private PathDriveManager pathManager;
     private OdometryManager odometryManager;
     private SensorManager sensorManager;
+    private TaskManager taskManager;
 
 
     SectionsPagerAdapter mSectionsPagerAdapter;
@@ -274,6 +275,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         this.obstacleManager = ObstacleAvoidManager.getInstance();
         this.pathManager = PathDriveManager.getInstance();
         this.sensorManager = SensorManager.getInstance();
+        this.taskManager = TaskManager.getInstance();
         initThreads();
 
     }
@@ -281,7 +283,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private void initThreads(){
         this.odometryManager.initOdoThread(this, controlManager);
         this.sensorManager.initSensorThread(this, controlManager);
-        this.obstacleManager.initObstThread(this, controlManager);
+       // this.obstacleManager.initObstThread(this, controlManager);
 
     }
 
@@ -345,8 +347,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             TextView xCoord = (TextView) findViewById(R.id.moveToX);
             TextView yCoord = (TextView) findViewById(R.id.moveToY);
 
-            int x = -50;
-            int y = 50;
+            int x = 100;
+            int y = 0;
 
            /* if (xCoord.getTextSize() > 0) {
                 x = Integer.parseInt(xCoord.getText().toString());
@@ -398,7 +400,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         try {
             odometryManager.joinThread();
             sensorManager.joinThread();
-            obstacleManager.joinThread();
+           // obstacleManager.joinThread();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
