@@ -347,19 +347,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             TextView xCoord = (TextView) findViewById(R.id.moveToX);
             TextView yCoord = (TextView) findViewById(R.id.moveToY);
 
-            int x = 100;
-            int y = 0;
+            float x = 100;
+            float y = 0;
 
-           /* if (xCoord.getTextSize() > 0) {
+            if (xCoord.getTextSize() > 1 && yCoord.getTextSize() > 1) {
                 x = Integer.parseInt(xCoord.getText().toString());
                 y = Integer.parseInt(yCoord.getText().toString());
+                x /= 2.1f;
+                y /= 2.1f;
             }else{
-                x = 2000;
-                y = 2000;
-            }*/
+                x = 100;
+                y = 0;
+            }
 
             try {
-                TaskQueue moveTowardsTask = Task.getNewMoveToTaskQueue(15, 15, x, y);
+                TaskQueue moveTowardsTask = Task.getNewMoveToTaskQueue(15, 15, (int) x, (int) y);
+                TaskManager.getInstance().moveToTarget = new RobotPosVector((int) x, (int) y, 0);
                 TaskManager.getInstance().executeTaskQueue(moveTowardsTask);
             }catch (Exception e){
                 threadSafeDebugOutput("error" + e);

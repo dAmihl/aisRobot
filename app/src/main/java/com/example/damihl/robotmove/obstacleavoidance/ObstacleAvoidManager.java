@@ -150,18 +150,13 @@ public class ObstacleAvoidManager {
     }
 
     public void avoidObstacleBug0(){
-        RobotPosVector toTarget = TaskManager.getInstance().getNextTarget();
+        //RobotPosVector toTarget = TaskManager.getInstance().getNextTarget();
+        RobotPosVector toTarget = TaskManager.getInstance().moveToTarget;
         if (toTarget == null) return;
         MainActivity.getInstance().threadSafeDebugOutput("Bug0 starting");
         TaskQueue queue = new TaskQueue();
-        queue.addAll(Task.getNewMoveByRightTaskQueue(20,20,20));
-        //queue.addAll(Task.getNewMoveByRightTaskQueue(20, 20, 10));
-        //RobotPosVector moveTarget = new RobotPosVector(OdometryManager.getInstance().getCurrentPosition().x, OdometryManager.getInstance().getCurrentPosition().y, OdometryManager.getInstance().getCurrentPosition().getAngle());
-        //float byAngle = (moveTarget.getAngle() + 90) % 360;
-        //moveTarget.add(new RobotPosVector(0,20,0));
-        //queue.addAll(Task.getNewMoveToTaskQueue(20,20, (int) moveTarget.x, (int) moveTarget.y));
-        //queue.addAll(Task.getNewMoveToTaskQueue(20,20,0,0));
-        queue.addAll(Task.getNewMoveToTaskQueue(20,20,(int) toTarget.x, (int) toTarget.y));
+        queue.addAll(Task.getNewMoveByRightTaskQueue(15,15,20));
+        queue.addAll(Task.getNewMoveToTaskQueue(15,15,(int) toTarget.x, (int) toTarget.y));
         TaskManager.getInstance().executeTaskQueue(queue);
     }
 

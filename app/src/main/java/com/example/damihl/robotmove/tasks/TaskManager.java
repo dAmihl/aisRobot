@@ -47,6 +47,7 @@ public class TaskManager implements EventCallback {
     private TaskQueue taskQueue = new TaskQueue();
     private TaskThread taskThread;
     private TargetStack targetStack;
+    public RobotPosVector moveToTarget;
 
     public static TaskManager getInstance(){
         if (instance != null) return instance;
@@ -81,6 +82,14 @@ public class TaskManager implements EventCallback {
                             e.printStackTrace();
                         }
                         obstacleAvoid();
+                    } else if (CURRENT_STATE == STATE.FINISHED){
+                        if (targetStack != null) {
+                            if (!targetStack.isEmpty()) {
+                                Log.d("TARGSTCK", "finished but target stack not empty yet.");
+                                RobotPosVector newTarget = getNextTarget();
+                                executeTaskQueue(Task.getNewMoveToTaskQueue(15, 15, (int) newTarget.x, (int) newTarget.y));
+                            }
+                        }
                     }
 
                     try{
@@ -158,6 +167,8 @@ public class TaskManager implements EventCallback {
 
     @Override
     public synchronized void obstacleFoundCallback() {
+        RobotPosVector oldTarget = OdometryManager.getInstance().getTargetPosition();
+        targetStack.push(oldTarget);
         CURRENT_STATE = STATE.OBSTACLE_FOUND;
     }
 
@@ -174,8 +185,7 @@ public class TaskManager implements EventCallback {
     }
 
     private void obstacleAvoid(){
-        RobotPosVector oldTarget = OdometryManager.getInstance().getTargetPosition();
-        targetStack.push(oldTarget);
+
         MainActivity.getInstance().threadSafeDebugOutput("Obstacle now gets avoided maybe?!");
         ControlManager.getInstance().robotStop();
         ObstacleAvoidManager.getInstance().avoidObstacleBug0();
