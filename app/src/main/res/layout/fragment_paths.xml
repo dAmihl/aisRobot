@@ -23,6 +23,15 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="45dp"
             android:layout_gravity="center_horizontal" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search Ball"
+            android:id="@+id/btn_searchBall"
+            android:layout_gravity="center_horizontal"
+            android:clickable="true"
+            android:onClick="onButtonSearchBallClick" />
     </LinearLayout>
 
 </FrameLayout>

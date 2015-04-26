@@ -3,6 +3,7 @@ package com.example.damihl.robotmove.tasks;
 import android.util.Log;
 
 import com.example.damihl.robotmove.MainActivity;
+import com.example.damihl.robotmove.camera.CameraManager;
 import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
@@ -190,6 +191,10 @@ public class Task {
     }
 
 
+    public static Task getNewTurnForColorTask(){
+        return new Task(20,-20,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorSearchTaskCondition());
+    }
+
 
 
     /*
@@ -208,6 +213,15 @@ public class Task {
                     return true;
                 }
                 return false;
+            }
+        };
+    }
+
+    public static TaskCondition getColorSearchTaskCondition(){
+        return new TaskCondition() {
+            @Override
+            public boolean taskFinishCondition() {
+                return CameraManager.getInstance().checkColorInMiddle();
             }
         };
     }

@@ -107,6 +107,11 @@ public class OdometryManager {
 
     }
 
+    public void resetOdometry(){
+        initState();
+        currentPosition = new RobotPosVector(0,0,0);
+    }
+
     /**
      * this method calculates the current position <br />
      * and writes it into the corresponding fields;

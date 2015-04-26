@@ -1,6 +1,5 @@
 package com.example.damihl.robotmove;
 
-import java.sql.Connection;
 import java.util.Locale;
 
 import android.support.v7.app.ActionBarActivity;
@@ -20,7 +19,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
-
+import com.example.damihl.robotmove.camera.CameraManager;
 import com.example.damihl.robotmove.connection.ConnectionManager;
 import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
@@ -31,6 +30,7 @@ import com.example.damihl.robotmove.tasks.Task;
 import com.example.damihl.robotmove.tasks.TaskManager;
 import com.example.damihl.robotmove.tasks.TaskQueue;
 import com.example.damihl.robotmove.uifragments.CameraFragment;
+import com.example.damihl.robotmove.uifragments.CameraFragment_old;
 import com.example.damihl.robotmove.uifragments.ControlFragment;
 import com.example.damihl.robotmove.uifragments.CoordMoveFragment;
 import com.example.damihl.robotmove.uifragments.LogFragment;
@@ -67,6 +67,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private OdometryManager odometryManager;
     private SensorManager sensorManager;
     private TaskManager taskManager;
+    private CameraManager cameraManager;
 
 
     SectionsPagerAdapter mSectionsPagerAdapter;
@@ -186,9 +187,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 return CoordMoveFragment.newInstance(position);
             }else if (position == FRAGMENT_PATHS_INDEX){
                 return PathsFragment.newInstance(position);
-            }/*else if (position == FRAGMENT_CAMERA_INDEX){
+            }else if (position == FRAGMENT_CAMERA_INDEX){
                 return CameraFragment.newInstance(position);
-            }*/else{
+            }else{
                 return PlaceholderFragment.newInstance(position + 1);
             }
 
@@ -276,6 +277,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         this.pathManager = PathDriveManager.getInstance();
         this.sensorManager = SensorManager.getInstance();
         this.taskManager = TaskManager.getInstance();
+        this.cameraManager = CameraManager.getInstance();
         initThreads();
 
     }
@@ -283,8 +285,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private void initThreads(){
         this.odometryManager.initOdoThread(this, controlManager);
         this.sensorManager.initSensorThread(this, controlManager);
+        this.cameraManager.initCamThread(this, controlManager);
        // this.obstacleManager.initObstThread(this, controlManager);
 
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        CameraManager.getInstance().asyncLoadCamera();
     }
 
 
@@ -342,6 +351,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    public void onButtonResetOdometryClick(View v){
+        this.odometryManager.resetOdometry();
+    }
+
+    public void onButtonSearchBallClick(View v){
+        if (checkConnection()){
+            Task search = Task.getNewTurnForColorTask();
+            TaskQueue queue = new TaskQueue();
+            queue.add(search);
+            TaskManager.getInstance().executeTaskQueue(queue);
+        }
+    }
+
    public void onButtonMoveTowardsClick(View v){
         if (checkConnection()){
             TextView xCoord = (TextView) findViewById(R.id.moveToX);
@@ -383,7 +405,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 try {
                     odometryManager.joinThread();
                     sensorManager.joinThread();
-                    obstacleManager.joinThread();
+                    cameraManager.joinThread();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -403,7 +425,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         try {
             odometryManager.joinThread();
             sensorManager.joinThread();
-           // obstacleManager.joinThread();
+            cameraManager.joinThread();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -415,6 +437,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         odometryManager.startOdometry(ControlManager.getInstance(), instance);
         obstacleManager.startObstacleDetection(ControlManager.getInstance(), instance);
         sensorManager.startSensorThread(ControlManager.getInstance(), instance);
+        //cameraManager.startCameraManager(ControlManager.getInstance(), instance);
     }
 
     public void moveStandard(){

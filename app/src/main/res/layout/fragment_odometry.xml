@@ -31,6 +31,15 @@
             android:text="Angle: "
             android:id="@+id/odometryTextAngle" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset Odometry"
+            android:id="@+id/btn_resetOdometry"
+            android:layout_gravity="center_horizontal"
+            android:clickable="true"
+            android:onClick="onButtonResetOdometryClick" />
+
 
     </LinearLayout>
 
