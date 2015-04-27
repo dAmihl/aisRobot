@@ -83,16 +83,18 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         mOpenCvCameraView = (CameraBridgeViewBase) MainActivity.getInstance().findViewById(R.id.color_blob_detection_activity_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.enableView();
+
     }
 
 
     public void asyncLoadCamera(){
+        setUpBaseLoaderCallback();
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, MainActivity.getInstance(), mLoaderCallback);
     }
 
 
     private CameraManager(){
-        setUpBaseLoaderCallback();
+
     }
 
     public void setUpBaseLoaderCallback(){
