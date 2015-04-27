@@ -168,6 +168,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         SPECTRUM_SIZE = new Size(200, 64);
         CONTOUR_COLOR = new Scalar(255,0,0,255);
 
+
         Log.i("CAM", "camera view started with w:"+width+"/h:"+height);
         startCameraManager(ControlManager.getInstance(), MainActivity.getInstance());
     }
