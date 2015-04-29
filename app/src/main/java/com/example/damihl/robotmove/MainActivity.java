@@ -357,10 +357,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void onButtonSearchBallClick(View v){
         if (checkConnection()){
-            Task search = Task.getNewTurnForColorTask();
+            /*Task search = Task.getNewTurnForColorTask();
             TaskQueue queue = new TaskQueue();
             queue.add(search);
-            TaskManager.getInstance().executeTaskQueue(queue);
+            TaskManager.getInstance().executeTaskQueue(queue);*/
+            TaskManager.getInstance().executeTaskQueue(Task.getNewFindColorTaskQueue());
         }
     }
 

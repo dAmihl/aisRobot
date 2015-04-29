@@ -190,9 +190,20 @@ public class Task {
         return new Task(0, 0, OdometryManager.getInstance().getCurrentPosition(), exec, condition);
     }
 
+    public static TaskQueue getNewFindColorTaskQueue(){
+        TaskQueue queue = new TaskQueue();
+        queue.add(getNewTurnForColorTask());
+        queue.add(getNewMoveUntilColorTask());
+        return queue;
+    }
+
 
     public static Task getNewTurnForColorTask(){
-        return new Task(20,-20,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorSearchTaskCondition());
+        return new Task(12,-12,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorSearchTaskCondition());
+    }
+
+    public static Task getNewMoveUntilColorTask(){
+        return new Task(12,-12,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorInRangeTaskCondition());
     }
 
 
@@ -222,6 +233,15 @@ public class Task {
             @Override
             public boolean taskFinishCondition() {
                 return CameraManager.getInstance().checkColorInMiddle();
+            }
+        };
+    }
+
+    public static TaskCondition getColorInRangeTaskCondition(){
+        return new TaskCondition() {
+            @Override
+            public boolean taskFinishCondition() {
+                return CameraManager.getInstance().checkColorInRange();
             }
         };
     }

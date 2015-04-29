@@ -156,6 +156,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         if (checkColorInMiddle()){
             Log.i("CAM", "CAM FOUND COLOR IN MIDDLE");
         }
+        checkColorInRange();
     }
 
     @Override
@@ -201,6 +202,30 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
                */;
 
         return isInMid;
+    }
+
+    public boolean checkColorInRange(){
+
+
+        double PERCENT_COLOR_IN_RANGE_THRESHOLD = 0.2f;
+
+
+        if (!FOUND_COLOR_IN_IMAGE) return false;
+
+        boolean isInRange = false;
+
+        Scalar c =  Core.sumElems(mRgba);
+        int cols = mRgba.cols();
+        int rows = mRgba.rows();
+        double maxValue = (cols * rows * 255);
+        double sum = c.val[0];
+        double percent = sum / maxValue;
+
+        Log.d("CAMCHECK", "Sum of mRgba matrix: "+ sum+" of max: "+maxValue+"is %: "+sum / maxValue);
+
+        isInRange =  percent >= PERCENT_COLOR_IN_RANGE_THRESHOLD;
+
+        return isInRange;
     }
 
 
