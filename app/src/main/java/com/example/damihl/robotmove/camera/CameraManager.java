@@ -1,7 +1,9 @@
 package com.example.damihl.robotmove.camera;
 
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
+import android.view.View;
 
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.R;
@@ -15,6 +17,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
@@ -23,17 +26,20 @@ import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
+import java.util.List;
+
 /**
  * Created by dAmihl on 26.04.15.
  */
-public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2, View.OnTouchListener {
 
     private static CameraManager instance = null;
-
+    private static final String TAG = "CAMMNGR";
     private int sleepTime = 100;
 
     private Thread camThread;
 
+    private boolean mIsColorSelected = false;
     private CameraBridgeViewBase mOpenCvCameraView;
     private BaseLoaderCallback mLoaderCallback;
     private Mat currentFrame;
@@ -51,23 +57,24 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     private int LAST_FOUND_COLOR_POS_X = 0;
     private int LAST_FOUND_COLOR_POS_Y = 0;
 
+    private int CIRCLE_CONTOUR_RADIUS = 0;
     /*
     Set HSV boundarys for color detection
      */
-    private static int iLowH = 38;
-    private static int iHighH = 75;
+    private static int iLowH = 100;
+    private static int iHighH = 120;
 
-    private static int iLowS = 100;
+    private static int iLowS = 200;
     private static int iHighS = 255;
 
-    private static int iLowV = 0;
-    private static int iHighV = 255;
+    private static int iLowV = 100;
+    private static int iHighV = 120;
 
 
     /*
     Define screen mid to check for green color in mid
      */
-    private static int SCREEN_MID_X = 200;
+    private static int SCREEN_MID_X = 350;
     private static int SCREEN_MID_Y = 200;
     private static int SCREEN_MID_OFFSET = 50;
 
@@ -82,6 +89,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     private void init(){
         mOpenCvCameraView = (CameraBridgeViewBase) MainActivity.getInstance().findViewById(R.id.color_blob_detection_activity_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
+        mOpenCvCameraView.setOnTouchListener(this);
         mOpenCvCameraView.enableView();
 
     }
@@ -104,13 +112,13 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
                 switch (status) {
                     case LoaderCallbackInterface.SUCCESS:
                     {
-                        Log.i("CAM", "OpenCV loaded successfully");
+                        Log.i(TAG, "OpenCV loaded successfully");
                         init();
                         //mOpenCvCameraView.enableView();
                     } break;
                     default:
                     {
-                        Log.d("CAM", "no success at loading opencv");
+                        Log.d(TAG, "no success at loading opencv");
                         super.onManagerConnected(status);
                     } break;
                 }
@@ -152,11 +160,12 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     }
 
     public void update(){
-        processImage();
         if (checkColorInMiddle()){
-            Log.i("CAM", "CAM FOUND COLOR IN MIDDLE");
+            Log.i(TAG, "CAM FOUND COLOR IN MIDDLE");
         }
-        checkColorInRange();
+        if (checkColorInRange()){
+            Log.i(TAG, "COLOR BLOB IN RANGE NOW!!");
+        };
     }
 
     @Override
@@ -170,7 +179,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         CONTOUR_COLOR = new Scalar(255,0,0,255);
 
 
-        Log.i("CAM", "camera view started with w:"+width+"/h:"+height);
+        Log.i(TAG, "camera view started with w:"+width+"/h:"+height);
         startCameraManager(ControlManager.getInstance(), MainActivity.getInstance());
     }
 
@@ -181,8 +190,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        if (currentFrame == null)
-            currentFrame = inputFrame.rgba();
+        onCameraFrame2(inputFrame);
         return mRgba;
     }
 
@@ -190,13 +198,9 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     public boolean checkColorInMiddle(){
 
-       if (!FOUND_COLOR_IN_IMAGE) return false;
-
-        // only y coordinate measures the angle to the object
-        // x coordinate measures the distance
        boolean isInMid =
-               (LAST_FOUND_COLOR_POS_Y <= SCREEN_MID_Y + SCREEN_MID_OFFSET) &&
-               (LAST_FOUND_COLOR_POS_Y >= SCREEN_MID_Y - SCREEN_MID_OFFSET)/* &&
+               (LAST_FOUND_COLOR_POS_X <= SCREEN_MID_X + SCREEN_MID_OFFSET) &&
+               (LAST_FOUND_COLOR_POS_X >= SCREEN_MID_X - SCREEN_MID_OFFSET)/* &&
                (LAST_FOUND_COLOR_POS_X <= SCREEN_MID_X + SCREEN_MID_OFFSET) &&
                (LAST_FOUND_COLOR_POS_X >= SCREEN_MID_X - SCREEN_MID_OFFSET)
                */;
@@ -207,79 +211,90 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     public boolean checkColorInRange(){
 
 
-        double PERCENT_COLOR_IN_RANGE_THRESHOLD = 0.2f;
+        return 2*CIRCLE_CONTOUR_RADIUS > 250;
 
-
-        if (!FOUND_COLOR_IN_IMAGE) return false;
-
-        boolean isInRange = false;
-
-        Scalar c =  Core.sumElems(mRgba);
-        int cols = mRgba.cols();
-        int rows = mRgba.rows();
-        double maxValue = (cols * rows * 255);
-        double sum = c.val[0];
-        double percent = sum / maxValue;
-
-        Log.d("CAMCHECK", "Sum of mRgba matrix: "+ sum+" of max: "+maxValue+"is %: "+sum / maxValue);
-
-        isInRange =  percent >= PERCENT_COLOR_IN_RANGE_THRESHOLD;
-
-        return isInRange;
     }
 
 
 
-    public void processImage(){
-        if (currentFrame == null) return;
+    public boolean onTouch(View v, MotionEvent event) {
+        int cols = mRgba.cols();
+        int rows = mRgba.rows();
+        int xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
+        int yOffset = (mOpenCvCameraView.getHeight() - rows) / 2;
+        int x = (int)event.getX() - xOffset;
+        int y = (int)event.getY() - yOffset;
+        Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
+        if ((x < 0) || (y < 0) || (x > cols) || (y > rows)) return false;
+        Rect touchedRect = new Rect();
+        touchedRect.x = (x>4) ? x-4 : 0;
+        touchedRect.y = (y>4) ? y-4 : 0;
+        touchedRect.width = (x+4 < cols) ? x + 4 - touchedRect.x : cols - touchedRect.x;
+        touchedRect.height = (y+4 < rows) ? y + 4 - touchedRect.y : rows - touchedRect.y;
+        Mat touchedRegionRgba = mRgba.submat(touchedRect);
+        Mat touchedRegionHsv = new Mat();
+        Imgproc.cvtColor(touchedRegionRgba, touchedRegionHsv, Imgproc.COLOR_RGB2HSV_FULL);
+// Calculate average color of touched region
+        mBlobColorHsv = Core.sumElems(touchedRegionHsv);
+        int pointCount = touchedRect.width*touchedRect.height;
+        for (int i = 0; i < mBlobColorHsv.val.length; i++)
+            mBlobColorHsv.val[i] /= pointCount;
+        mBlobColorRgba = converScalarHsv2Rgba(mBlobColorHsv);
+        Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", " + mBlobColorRgba.val[1] +
+                ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
+        mDetector.setHsvColor(mBlobColorHsv);
+        Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
+        mIsColorSelected = true;
+        touchedRegionRgba.release();
+        touchedRegionHsv.release();
+        return false; // don't need subsequent touch events
+    }
 
 
-        Mat imgHSV = new Mat();
-        Imgproc.cvtColor(currentFrame, imgHSV, Imgproc.COLOR_RGB2HSV);
 
-        Mat imgThresholded = new Mat();
-        Core.inRange(imgHSV, new Scalar(iLowH, iLowS, iLowV), new Scalar(iHighH, iHighS, iHighV), imgThresholded);
+    public Mat onCameraFrame2(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        mRgba = inputFrame.rgba();
+        if(mIsColorSelected) {
+            mDetector.process(mRgba);
+            List<MatOfPoint> contours = mDetector.getContours();
+           // Log.e(TAG, "Contours count: " + contours.size());
+            Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
+            if (contours.size() == 1) {
+                Point centroid = new Point(0, 0);
+                for (Point p : contours.get(0).toArray()) {
+                    centroid.x += p.x;
+                    centroid.y += p.y;
+                }
+                centroid.x /= contours.get(0).toArray().length;
+                centroid.y /= contours.get(0).toArray().length;
 
+                LAST_FOUND_COLOR_POS_X = (int) centroid.x;
+                LAST_FOUND_COLOR_POS_Y = (int) centroid.y;
+                Log.i(TAG, "X: "+LAST_FOUND_COLOR_POS_X+"/ Y: "+LAST_FOUND_COLOR_POS_Y);
 
-        Imgproc.erode(imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)));
-        Imgproc.dilate(imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)));
-
-        //morphological closing (fill small holes in the foreground)
-        Imgproc.dilate(imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)));
-        Imgproc.erode(imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)));
-
-
-        Moments oMoments = Imgproc.moments(imgThresholded);
-
-        double dM01 = oMoments.get_m01();
-        double dM10 = oMoments.get_m10();
-        double dArea = oMoments.get_m00();
-
-        if (dArea > 10000) {
-            //calculate the position of the ball
-            double posX = dM10 / dArea;
-            double posY = dM01 / dArea;
-           // Log.i("CAM", "CAM FOUND SOMETHING GREEN AT "+posX+"/"+posY);
-            Core.circle(imgThresholded, new Point(posX, posY),20,new Scalar(100,100,100));
-            LAST_FOUND_COLOR_POS_X = (int) posX;
-            LAST_FOUND_COLOR_POS_Y = (int) posY;
-            FOUND_COLOR_IN_IMAGE = true;
-        }else{
-            FOUND_COLOR_IN_IMAGE = false;
+                Double max = new Double(0);
+                for (Point p : contours.get(0).toArray()) {
+                    double tmp = (centroid.x-p.x)*(centroid.x-p.x) + (centroid.y-p.y)*(centroid.y-p.y);
+                    if(tmp > max)
+                    {
+                        max = tmp;
+                    }
+                }
+                CIRCLE_CONTOUR_RADIUS = (int)Math.sqrt(max);
+                Core.circle(mRgba, centroid, CIRCLE_CONTOUR_RADIUS, CONTOUR_COLOR);
+            }
+            Mat colorLabel = mRgba.submat(4, 68, 4, 68);
+            colorLabel.setTo(mBlobColorRgba);
+            Mat spectrumLabel = mRgba.submat(4, 4 + mSpectrum.rows(), 70, 70 + mSpectrum.cols());
+            mSpectrum.copyTo(spectrumLabel);
         }
+        return mRgba;
+    }
 
-
-        // Imgproc.cvtColor(imgThresholded, mRgba, Imgproc.COLOR_HSV2RGB_FULL);
-        Mat rgb = new Mat();
-        Imgproc.cvtColor(imgThresholded, rgb,Imgproc.COLOR_GRAY2RGB);
-        Mat rgba = new Mat();
-        Imgproc.cvtColor(rgb, mRgba, Imgproc.COLOR_RGB2RGBA, 0);
-        currentFrame = null;
-
-        rgb.release();
-        rgba.release();
-        imgHSV.release();
-        imgThresholded.release();
-
+    private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
+        Mat pointMatRgba = new Mat();
+        Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
+        Imgproc.cvtColor(pointMatHsv, pointMatRgba, Imgproc.COLOR_HSV2RGB_FULL, 4);
+        return new Scalar(pointMatRgba.get(0, 0));
     }
 }
