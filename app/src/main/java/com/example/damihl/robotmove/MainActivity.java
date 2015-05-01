@@ -285,7 +285,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private void initThreads(){
         this.odometryManager.initOdoThread(this, controlManager);
         this.sensorManager.initSensorThread(this, controlManager);
-        this.cameraManager.initCamThread(this, controlManager);
+        //this.cameraManager.initCamThread(this, controlManager);
        // this.obstacleManager.initObstThread(this, controlManager);
 
     }
@@ -355,12 +355,23 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         this.odometryManager.resetOdometry();
     }
 
-    public void onButtonSearchBallClick(View v){
+    public void onButtonSearchGreenBallClick(View v){
         if (checkConnection()){
-            /*Task search = Task.getNewTurnForColorTask();
-            TaskQueue queue = new TaskQueue();
-            queue.add(search);
-            TaskManager.getInstance().executeTaskQueue(queue);*/
+            CameraManager.getInstance().setColor(CameraManager.getInstance().GREEN_COLOR);
+            TaskManager.getInstance().executeTaskQueue(Task.getNewFindColorTaskQueue());
+        }
+    }
+
+    public void onButtonSearchRedBallClick(View v){
+        if (checkConnection()){
+            CameraManager.getInstance().setColor(CameraManager.getInstance().RED_COLOR);
+            TaskManager.getInstance().executeTaskQueue(Task.getNewFindColorTaskQueue());
+        }
+    }
+
+    public void onButtonSearchBlueBallClick(View v){
+        if (checkConnection()){
+            CameraManager.getInstance().setColor(CameraManager.getInstance().BLUE_COLOR);
             TaskManager.getInstance().executeTaskQueue(Task.getNewFindColorTaskQueue());
         }
     }
@@ -406,7 +417,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 try {
                     odometryManager.joinThread();
                     sensorManager.joinThread();
-                    cameraManager.joinThread();
+                    //cameraManager.joinThread();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -426,7 +437,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         try {
             odometryManager.joinThread();
             sensorManager.joinThread();
-            cameraManager.joinThread();
+           // cameraManager.joinThread();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

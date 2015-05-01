@@ -51,6 +51,12 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     private Size SPECTRUM_SIZE;
     private Scalar               CONTOUR_COLOR;
 
+
+    public Scalar GREEN_COLOR = new Scalar(65.40625, 126.09375, 107.71875, 0.0);
+    public Scalar RED_COLOR = new Scalar(65.40625, 126.09375, 107.71875, 0.0);
+    public Scalar BLUE_COLOR = new Scalar(65.40625, 126.09375, 107.71875, 0.0);
+
+
     private static final int COLOR_CHECK_RECTANGLE_SIZE = 6;
 
     private boolean FOUND_COLOR_IN_IMAGE = false;
@@ -74,9 +80,9 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     /*
     Define screen mid to check for green color in mid
      */
-    private static int SCREEN_MID_X = 350;
+    private static int SCREEN_MID_X = 150;
     private static int SCREEN_MID_Y = 200;
-    private static int SCREEN_MID_OFFSET = 50;
+    private static int SCREEN_MID_OFFSET = 20;
 
 
 
@@ -88,6 +94,9 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     private void init(){
         mOpenCvCameraView = (CameraBridgeViewBase) MainActivity.getInstance().findViewById(R.id.color_blob_detection_activity_surface_view);
+        if (mOpenCvCameraView == null) {
+            return;
+        }
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setOnTouchListener(this);
         mOpenCvCameraView.enableView();
@@ -205,14 +214,21 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
                (LAST_FOUND_COLOR_POS_X >= SCREEN_MID_X - SCREEN_MID_OFFSET)
                */;
 
+        Log.i(TAG, "X: "+LAST_FOUND_COLOR_POS_X+ "IS IN "+SCREEN_MID_X+"?");
+
         return isInMid;
     }
 
     public boolean checkColorInRange(){
 
 
-        return 2*CIRCLE_CONTOUR_RADIUS > 250;
+        return 2*CIRCLE_CONTOUR_RADIUS > 65;
 
+    }
+
+
+    public void setColor(Scalar col){
+        mDetector.setHsvColor(col);
     }
 
 
@@ -240,6 +256,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         for (int i = 0; i < mBlobColorHsv.val.length; i++)
             mBlobColorHsv.val[i] /= pointCount;
         mBlobColorRgba = converScalarHsv2Rgba(mBlobColorHsv);
+        Log.i(TAG, "TOUCHED HSV COLOR: "+mBlobColorHsv);
         Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", " + mBlobColorRgba.val[1] +
                 ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
         mDetector.setHsvColor(mBlobColorHsv);
@@ -270,7 +287,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
                 LAST_FOUND_COLOR_POS_X = (int) centroid.x;
                 LAST_FOUND_COLOR_POS_Y = (int) centroid.y;
-                Log.i(TAG, "X: "+LAST_FOUND_COLOR_POS_X+"/ Y: "+LAST_FOUND_COLOR_POS_Y);
+                //Log.i(TAG, "X: "+LAST_FOUND_COLOR_POS_X+"/ Y: "+LAST_FOUND_COLOR_POS_Y);
 
                 Double max = new Double(0);
                 for (Point p : contours.get(0).toArray()) {

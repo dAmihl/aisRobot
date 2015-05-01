@@ -60,7 +60,7 @@ public class ConnectionManager {
      *         <b>false</b> otherwise
      */
     public boolean connect(){
-            if (com.begin(9600)) {
+            if (com.begin(FTDriver.BAUD9600)) {
                 application.threadSafeDebugOutput("connected");
             } else {
                 application.threadSafeDebugOutput("could not connect");

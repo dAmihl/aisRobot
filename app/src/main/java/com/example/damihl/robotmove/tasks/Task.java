@@ -129,6 +129,32 @@ public class Task {
         return queue;
     }
 
+    public static TaskQueue getNewMoveToWithoutObstacleAvoidTaskQueue(int velR, int velL, int x, int y){
+        TaskQueue queue = new TaskQueue();
+
+        Task turnTask = getNewTurnToTask(velR, velL, x, y);
+        MainActivity.getInstance().threadSafeDebugOutput("TurnTaskTarget: " + turnTask.getTarget());
+        queue.add(turnTask);
+
+
+        Task moveTask = getNewMoveWithoutObstacleAvoidTask(velR, velL, x, y);
+
+
+        queue.add(moveTask);
+        MainActivity.getInstance().threadSafeDebugOutput("MoveTaskTarget: "+moveTask.getTarget());
+
+        return queue;
+    }
+
+
+    public static Task getNewMoveWithoutObstacleAvoidTask(int velR, int velL, int x, int y){
+        RobotPosVector target = new RobotPosVector(x, y, OdometryManager.getInstance().getCurrentPosition().getAngle());
+        return new Task(velR, velL, target, getStandardMoveTaskExecution(),getMoveWithoutObstacleAvoidTaskCondition());
+    }
+
+
+
+
     public static Task getNewMoveTask(int velR, int velL, int x, int y){
         RobotPosVector target = new RobotPosVector(x, y, OdometryManager.getInstance().getCurrentPosition().getAngle());
         return createNewMoveTask(velR, velL, target);
@@ -194,6 +220,8 @@ public class Task {
         TaskQueue queue = new TaskQueue();
         queue.add(getNewTurnForColorTask());
         queue.add(getNewMoveUntilColorTask());
+        queue.add(getNewLowerBarTask());
+        queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(12, 12, 0, 0));
         return queue;
     }
 
@@ -203,7 +231,32 @@ public class Task {
     }
 
     public static Task getNewMoveUntilColorTask(){
-        return new Task(12,-12,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorInRangeTaskCondition());
+        return new Task(12,12,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorInRangeTaskCondition());
+    }
+
+    public static Task getNewLowerBarTask(){
+        return new Task(0,0, OdometryManager.getInstance().getCurrentPosition(), new TaskExecution() {
+            @Override
+            public void execution(Task t) {
+                ControlManager.getInstance().robotSetBar((byte) 1);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        },
+        new TaskCondition() {
+            @Override
+            public boolean taskFinishCondition() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+        });
     }
 
 
@@ -219,6 +272,19 @@ public class Task {
                     TaskManager.getInstance().obstacleFoundCallback();
                     return true;
                 }
+                if (OdometryManager.getInstance().getCurrentPosition().isAt(OdometryManager.getInstance().getTargetPosition())){
+                    TaskManager.getInstance().targetReachedCallback();
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
+
+    public static TaskCondition getMoveWithoutObstacleAvoidTaskCondition(){
+        return new TaskCondition() {
+            @Override
+            public boolean taskFinishCondition() {
                 if (OdometryManager.getInstance().getCurrentPosition().isAt(OdometryManager.getInstance().getTargetPosition())){
                     TaskManager.getInstance().targetReachedCallback();
                     return true;

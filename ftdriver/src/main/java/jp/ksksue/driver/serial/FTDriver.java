@@ -177,27 +177,32 @@ public class FTDriver {
 
             getPermission(device);
             if (!mManager.hasPermission(device)) {
+                Log.i(TAG, "No permission for device "+device.toString());
                 return false;
             }
 
             // TODO: support any connections(current version find a first
             // device)
             if (getUsbInterfaces(device)) {
+                Log.i(TAG, "GET USB INTERFACE ERROR FOR "+device.toString());
                 break;
             }
         }
 
         if (mSelectedDeviceInfo == null) {
+            Log.i(TAG, "Selected device info is null!");
             return false;
         }
 
         if (mDevice == null) {
+            Log.i(TAG, "mDevice is null!");
             return false;
         }
 
         if (mDevice.getDeviceClass() == UsbConstants.USB_CLASS_COMM) {
             isCDC = true;
         } else {
+            Log.i(TAG, "Device Class not USB_CLASS_COMM");
             isCDC = false;
         }
 
@@ -990,6 +995,7 @@ public class FTDriver {
         if (device != null && mPermissionIntent != null) {
             if (!mManager.hasPermission(device)) {
                 mManager.requestPermission(device, mPermissionIntent);
+                Log.i(TAG, "REQUESTING PERMISSION FOR "+device.toString());
             }
         }
     }
