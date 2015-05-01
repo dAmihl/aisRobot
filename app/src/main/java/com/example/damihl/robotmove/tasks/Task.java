@@ -222,6 +222,7 @@ public class Task {
         queue.add(getNewMoveUntilColorTask());
         queue.add(getNewLowerBarTask());
         queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(12, 12, 0, 0));
+        queue.add(getNewRaiseBarTask());
         return queue;
     }
 
@@ -249,14 +250,39 @@ public class Task {
         new TaskCondition() {
             @Override
             public boolean taskFinishCondition() {
+                /*try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
+                return true;
+            }
+        });
+    }
+
+    public static Task getNewRaiseBarTask(){
+        return new Task(0,0, OdometryManager.getInstance().getCurrentPosition(), new TaskExecution() {
+            @Override
+            public void execution(Task t) {
+                ControlManager.getInstance().robotSetBar((byte) -1);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                return true;
             }
-        });
+        },
+                new TaskCondition() {
+                    @Override
+                    public boolean taskFinishCondition() {
+                        /*try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }*/
+                        return true;
+                    }
+                });
     }
 
 

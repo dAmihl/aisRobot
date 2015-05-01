@@ -52,9 +52,9 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     private Scalar               CONTOUR_COLOR;
 
 
-    public Scalar GREEN_COLOR = new Scalar(65.40625, 126.09375, 107.71875, 0.0);
-    public Scalar RED_COLOR = new Scalar(65.40625, 126.09375, 107.71875, 0.0);
-    public Scalar BLUE_COLOR = new Scalar(65.40625, 126.09375, 107.71875, 0.0);
+    public Scalar GREEN_COLOR = new Scalar(107.78125, 255.0, 127.546875, 0.0);
+    public Scalar RED_COLOR = new Scalar(250.484375, 197.3125, 249.765625, 0.0);
+    public Scalar BLUE_COLOR = new Scalar(146.453125, 241.765625, 228.828125, 0.0);
 
 
     private static final int COLOR_CHECK_RECTANGLE_SIZE = 6;
@@ -229,6 +229,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     public void setColor(Scalar col){
         mDetector.setHsvColor(col);
+        mIsColorSelected = true;
     }
 
 
