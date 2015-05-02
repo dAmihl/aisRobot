@@ -1,5 +1,6 @@
 package com.example.damihl.robotmove.camera;
 
+import android.hardware.Camera;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -56,6 +57,8 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     public Scalar RED_COLOR = new Scalar(250.484375, 197.3125, 249.765625, 0.0);
     public Scalar BLUE_COLOR = new Scalar(146.453125, 241.765625, 228.828125, 0.0);
 
+    private int CAMERA_VIEW_WIDTH;
+    private int CAMERA_VIEW_HEIGHT;
 
     private static final int COLOR_CHECK_RECTANGLE_SIZE = 6;
 
@@ -84,6 +87,10 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     private static int SCREEN_MID_Y = 200;
     private static int SCREEN_MID_OFFSET = 20;
 
+    private static int SCREEN_IN_RANGE_RADIUS = 65;
+    private static int SCREEN_IN_RANGE_Y_VALUE = 280;
+
+
 
 
     public static CameraManager getInstance(){
@@ -97,9 +104,13 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         if (mOpenCvCameraView == null) {
             return;
         }
+
+        mOpenCvCameraView.setMaxFrameSize(480,800);
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setOnTouchListener(this);
         mOpenCvCameraView.enableView();
+
+
 
     }
 
@@ -187,6 +198,14 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         SPECTRUM_SIZE = new Size(200, 64);
         CONTOUR_COLOR = new Scalar(255,0,0,255);
 
+        CAMERA_VIEW_HEIGHT = height;
+        CAMERA_VIEW_WIDTH = width;
+
+        SCREEN_MID_Y = height / 2;
+        SCREEN_MID_X = width /2;
+        SCREEN_MID_OFFSET = (int) (width * 0.01);
+        SCREEN_IN_RANGE_RADIUS = (int)(width * 0.2);
+        SCREEN_IN_RANGE_Y_VALUE = (int) (height * 0.9);
 
         Log.i(TAG, "camera view started with w:"+width+"/h:"+height);
         startCameraManager(ControlManager.getInstance(), MainActivity.getInstance());
@@ -222,7 +241,8 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     public boolean checkColorInRange(){
 
 
-        return 2*CIRCLE_CONTOUR_RADIUS > 65;
+        return (2*CIRCLE_CONTOUR_RADIUS > SCREEN_IN_RANGE_RADIUS) ||
+                (LAST_FOUND_COLOR_POS_Y > SCREEN_IN_RANGE_Y_VALUE && 2*CIRCLE_CONTOUR_RADIUS > 5);
 
     }
 
@@ -230,6 +250,18 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     public void setColor(Scalar col){
         mDetector.setHsvColor(col);
         mIsColorSelected = true;
+    }
+
+    public void setGreenTouchedColor(){
+        this.GREEN_COLOR = mBlobColorHsv;
+    }
+
+    public void setRedTouchedColor(){
+        this.RED_COLOR = mBlobColorHsv;
+    }
+
+    public void setBlueTouchedColor(){
+        this.BLUE_COLOR = mBlobColorHsv;
     }
 
 
@@ -260,9 +292,9 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         Log.i(TAG, "TOUCHED HSV COLOR: "+mBlobColorHsv);
         Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", " + mBlobColorRgba.val[1] +
                 ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
-        mDetector.setHsvColor(mBlobColorHsv);
+        //mDetector.setHsvColor(mBlobColorHsv);
         Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
-        mIsColorSelected = true;
+        //mIsColorSelected = true;
         touchedRegionRgba.release();
         touchedRegionHsv.release();
         return false; // don't need subsequent touch events

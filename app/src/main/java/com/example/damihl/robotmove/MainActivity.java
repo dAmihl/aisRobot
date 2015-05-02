@@ -376,6 +376,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    public void onButtonSetGreenColor(View v){
+        CameraManager.getInstance().setGreenTouchedColor();
+    }
+
+    public void onButtonSetBlueColor(View v){
+        CameraManager.getInstance().setBlueTouchedColor();
+    }
+
+    public void onButtonSetRedColor(View v){
+        CameraManager.getInstance().setRedTouchedColor();
+    }
+
    public void onButtonMoveTowardsClick(View v){
         if (checkConnection()){
             TextView xCoord = (TextView) findViewById(R.id.moveToX);

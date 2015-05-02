@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,6 +8,47 @@
     <org.opencv.android.JavaCameraView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/color_blob_detection_activity_surface_view" />
+        android:id="@+id/color_blob_detection_activity_surface_view"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="0dp" />
 
-</LinearLayout>
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set R"
+        android:id="@+id/id_btnSetR"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:clickable="true"
+        android:onClick="onButtonSetRedColor" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set G"
+        android:id="@+id/id_btnSetG"
+        android:clickable="true"
+        android:onClick="onButtonSetGreenColor"
+        android:layout_alignTop="@+id/id_btnSetR"
+        android:layout_toRightOf="@+id/id_btnSetR"
+        android:layout_toEndOf="@+id/id_btnSetR"
+        />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set B"
+        android:id="@+id/id_btnSetB"
+        android:clickable="true"
+        android:onClick="onButtonSetBlueColor"
+        android:layout_alignTop="@+id/id_btnSetG"
+        android:layout_toRightOf="@+id/id_btnSetG"
+        android:layout_toEndOf="@+id/id_btnSetG" />
+
+</RelativeLayout>
