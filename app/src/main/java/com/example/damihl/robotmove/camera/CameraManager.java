@@ -42,6 +42,8 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     private boolean mIsColorSelected = false;
     private CameraBridgeViewBase mOpenCvCameraView;
+    //private MyCameraView mOpenCvCameraView;
+
     private BaseLoaderCallback mLoaderCallback;
     private Mat currentFrame;
     private Mat mRgba;
@@ -101,11 +103,16 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     private void init(){
         mOpenCvCameraView = (CameraBridgeViewBase) MainActivity.getInstance().findViewById(R.id.color_blob_detection_activity_surface_view);
+       // mOpenCvCameraView = (MyCameraView) MainActivity.getInstance().findViewById(R.id.color_blob_detection_activity_surface_view);
+
         if (mOpenCvCameraView == null) {
+            Log.i(TAG, "CAMERA VIEW NULL: NOT INITIALIZED!");
             return;
         }
 
-        mOpenCvCameraView.setMaxFrameSize(480,800);
+        //Log.i(TAG, "SUPPORTED RESOLUTIONS: "+mOpenCvCameraView.getResolutionList());
+        //mOpenCvCameraView.setResolution(mOpenCvCameraView.getResolutionList().get(0));
+        //mOpenCvCameraView.setMaxFrameSize(480,800);
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setOnTouchListener(this);
         mOpenCvCameraView.enableView();
