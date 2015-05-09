@@ -22,6 +22,8 @@ public class MyCameraView  extends JavaCameraView {
 
         public MyCameraView(Context context, AttributeSet attrs) {
             super(context, attrs);
+
+
         }
 
         public List<String> getEffectList() {
@@ -47,17 +49,38 @@ public class MyCameraView  extends JavaCameraView {
         }
 
         public void setResolution(Size resolution) {
+            setPreviewSize(resolution);
             disconnectCamera();
             mMaxHeight = resolution.height;
             mMaxWidth = resolution.width;
             connectCamera(getWidth(), getHeight());
         }
 
+        public void setPreviewSize(Size res){
+            Camera.Parameters params = mCamera.getParameters();
+            params.setPreviewSize(res.width, res.height);
+            mCamera.setParameters(params);
+        }
+
         public Size getResolution() {
             return mCamera.getParameters().getPreviewSize();
         }
 
+        public Size getBestSize(){
+            android.hardware.Camera.Size maxSize = getResolutionList().get(0);
+            for (android.hardware.Camera.Size s: getResolutionList()){
+                Log.i(TAG, "SUPPORTED RESOLUTIONS: "+s.width + "/"+s.height);
+                if (s.width > maxSize.width || s.height > maxSize.height) maxSize = s;
+            }
+            return maxSize;
+        }
 
+    @Override
+    protected boolean connectCamera(int width, int height) {
+        //Size bestSize = getBestSize();
+        return super.connectCamera(800,480);
+
+    }
 
 
 }

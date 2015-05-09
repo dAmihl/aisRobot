@@ -30,6 +30,7 @@ public class CameraFragment extends android.support.v4.app.Fragment {
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
+        CameraManager.getInstance().setUpBaseLoaderCallback();
         return fragment;
     }
 

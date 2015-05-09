@@ -4,16 +4,16 @@
     android:layout_height="match_parent"
     >
 
-    <!--<com.example.damihl.robotmove.camera.MyCameraView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+    <com.example.damihl.robotmove.camera.MyCameraView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:id="@+id/color_blob_detection_activity_surface_view"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="0dp"
         android:layout_alignParentTop="true"
         android:layout_marginTop="0dp" />
--->
 
+<!--
     <org.opencv.android.JavaCameraView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -22,7 +22,7 @@
         android:layout_marginLeft="0dp"
         android:layout_alignParentTop="true"
         android:layout_marginTop="0dp" />
-
+-->
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"

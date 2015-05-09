@@ -41,8 +41,8 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     private Thread camThread;
 
     private boolean mIsColorSelected = false;
-    private CameraBridgeViewBase mOpenCvCameraView;
-    //private MyCameraView mOpenCvCameraView;
+   // private CameraBridgeViewBase mOpenCvCameraView;
+    private MyCameraView mOpenCvCameraView;
 
     private BaseLoaderCallback mLoaderCallback;
     private Mat currentFrame;
@@ -102,20 +102,19 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
 
     private void init(){
-        mOpenCvCameraView = (CameraBridgeViewBase) MainActivity.getInstance().findViewById(R.id.color_blob_detection_activity_surface_view);
-       // mOpenCvCameraView = (MyCameraView) MainActivity.getInstance().findViewById(R.id.color_blob_detection_activity_surface_view);
+        //mOpenCvCameraView = (CameraBridgeViewBase) MainActivity.getInstance().findViewById(R.id.color_blob_detection_activity_surface_view);
+       mOpenCvCameraView = (MyCameraView) MainActivity.getInstance().findViewById(R.id.color_blob_detection_activity_surface_view);
 
         if (mOpenCvCameraView == null) {
             Log.i(TAG, "CAMERA VIEW NULL: NOT INITIALIZED!");
             return;
         }
-
-        //Log.i(TAG, "SUPPORTED RESOLUTIONS: "+mOpenCvCameraView.getResolutionList());
-        //mOpenCvCameraView.setResolution(mOpenCvCameraView.getResolutionList().get(0));
-        //mOpenCvCameraView.setMaxFrameSize(480,800);
+        mOpenCvCameraView.setMaxFrameSize(2000,2000);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
         mOpenCvCameraView.setOnTouchListener(this);
         mOpenCvCameraView.enableView();
+
 
 
 
@@ -123,7 +122,8 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
 
     public void asyncLoadCamera(){
-        setUpBaseLoaderCallback();
+       // setUpBaseLoaderCallback();
+        if ( mLoaderCallback == null) return;
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, MainActivity.getInstance(), mLoaderCallback);
     }
 
@@ -141,6 +141,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
                     {
                         Log.i(TAG, "OpenCV loaded successfully");
                         init();
+
                         //mOpenCvCameraView.enableView();
                     } break;
                     default:
@@ -151,9 +152,12 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
                 }
             }
         };
+        asyncLoadCamera();
+
+
     }
 
-
+/*
     public void joinThread() throws InterruptedException {
         if (this.camThread != null)
             this.camThread.join();
@@ -194,7 +198,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
             Log.i(TAG, "COLOR BLOB IN RANGE NOW!!");
         };
     }
-
+*/
     @Override
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4);
@@ -214,8 +218,11 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         SCREEN_IN_RANGE_RADIUS = (int)(width * 0.2);
         SCREEN_IN_RANGE_Y_VALUE = (int) (height * 0.9);
 
+
+
+
         Log.i(TAG, "camera view started with w:"+width+"/h:"+height);
-        startCameraManager(ControlManager.getInstance(), MainActivity.getInstance());
+        //startCameraManager(ControlManager.getInstance(), MainActivity.getInstance());
     }
 
     @Override
@@ -229,6 +236,10 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         return mRgba;
     }
 
+
+    public boolean checkColorInScreen(){
+        return LAST_FOUND_COLOR_POS_X > 0 && LAST_FOUND_COLOR_POS_Y > 0;
+    }
 
 
     public boolean checkColorInMiddle(){
@@ -274,6 +285,9 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
 
     public boolean onTouch(View v, MotionEvent event) {
+
+        if(mOpenCvCameraView == null) return false;
+
         int cols = mRgba.cols();
         int rows = mRgba.rows();
         int xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
@@ -299,9 +313,10 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         Log.i(TAG, "TOUCHED HSV COLOR: "+mBlobColorHsv);
         Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", " + mBlobColorRgba.val[1] +
                 ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
-        //mDetector.setHsvColor(mBlobColorHsv);
+        mDetector.setHsvColor(mBlobColorHsv);
         Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
-        //mIsColorSelected = true;
+
+        mIsColorSelected = true;
         touchedRegionRgba.release();
         touchedRegionHsv.release();
         return false; // don't need subsequent touch events
@@ -339,6 +354,9 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
                 }
                 CIRCLE_CONTOUR_RADIUS = (int)Math.sqrt(max);
                 Core.circle(mRgba, centroid, CIRCLE_CONTOUR_RADIUS, CONTOUR_COLOR);
+            }else{
+                LAST_FOUND_COLOR_POS_X = 0;
+                LAST_FOUND_COLOR_POS_Y = 0;
             }
             Mat colorLabel = mRgba.submat(4, 68, 4, 68);
             colorLabel.setTo(mBlobColorRgba);

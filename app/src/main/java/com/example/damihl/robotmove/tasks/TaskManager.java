@@ -172,6 +172,10 @@ public class TaskManager implements EventCallback {
         CURRENT_STATE = STATE.OBSTACLE_FOUND;
     }
 
+    public synchronized void colorInScreenCallback(){
+        this.executeTaskQueue(Task.getNewFindColorTaskQueue());
+    }
+
     @Override
     public synchronized void taskFinished(){
         Log.d("TASKMAN", "Task finished");
