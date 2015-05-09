@@ -389,7 +389,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         CameraManager.getInstance().setRedTouchedColor();
     }
 
-   public void onButtonMoveTowardsClick(View v){
+    public void onButtonSetHomography(View v){
+        CameraManager.getInstance().computeHomography();
+    }
+
+
+    public void onButtonMoveTowardsClick(View v){
         if (checkConnection()){
             TextView xCoord = (TextView) findViewById(R.id.moveToX);
             TextView yCoord = (TextView) findViewById(R.id.moveToY);

@@ -60,4 +60,16 @@
         android:layout_toRightOf="@+id/id_btnSetG"
         android:layout_toEndOf="@+id/id_btnSetG" />
 
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Homography"
+        android:id="@+id/id_btnSetHomography"
+        android:clickable="true"
+        android:onClick="onButtonSetHomography"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/id_btnSetB"
+        android:layout_toEndOf="@+id/id_btnSetB" />
+
 </RelativeLayout>

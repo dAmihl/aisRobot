@@ -2,6 +2,9 @@ package com.example.damihl.robotmove.camera;
 
 
 import java.util.LinkedList;
+
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -55,6 +58,25 @@ public class HomographyManager {
             return Calib3d.findHomography(mCorners, RealWorldC);
         else
             return new Mat();
+    }
+
+    private Point getWorldCoordinates(Point imgCoord, Mat homography){
+        Mat src = new Mat(1,1, CvType.CV_32FC2);
+        Mat dest = new Mat(1,1, CvType.CV_32FC2);
+        src.put(0,0, new double[] {imgCoord.x, imgCoord.y});
+        Core.perspectiveTransform(src, dest, homography);
+        Point dest_point = new Point(dest.get(0,0)[0], dest.get(0,0)[1]);
+        return dest_point;
+    }
+
+    public Point getWorldCoordinatesInMillimeter(Point imgCoord, Mat homography){
+        return getWorldCoordinates(imgCoord,homography);
+    }
+
+    public Point getWorldCoordinatesInCentimeter(Point imgCoord, Mat homography){
+        Point mm = getWorldCoordinates(imgCoord, homography);
+        Point cm = new Point(mm.x / 10, mm.y / 10);
+        return cm;
     }
 
 }

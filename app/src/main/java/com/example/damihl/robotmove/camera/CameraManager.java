@@ -47,6 +47,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     private BaseLoaderCallback mLoaderCallback;
     private Mat currentFrame;
     private Mat mRgba;
+    private Mat mHomography;
     private Scalar mBlobColorRgba;
     private Scalar               mBlobColorHsv;
     private ColorBlobDetector mDetector;
@@ -118,6 +119,16 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
 
 
+    }
+
+    public void computeHomography(){
+        this.mHomography = HomographyManager.getInstance().getHomographyMatrix(mRgba);
+        if (mHomography.size().area() > 0) Log.i(TAG, "Homography Matrix set!");
+        else Log.i(TAG, "Homography Matrix couldnt be set!!");
+    }
+
+    private boolean homographySet(){
+        return (mHomography != null && mHomography.size().area() > 0) ;
     }
 
 
@@ -342,6 +353,11 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
                 LAST_FOUND_COLOR_POS_X = (int) centroid.x;
                 LAST_FOUND_COLOR_POS_Y = (int) centroid.y;
+
+                if (homographySet()){
+                    Point worldCoordsCM = HomographyManager.getInstance().getWorldCoordinatesInCentimeter(new Point(LAST_FOUND_COLOR_POS_X, LAST_FOUND_COLOR_POS_Y), mHomography);
+                    Log.i(TAG, "Point at world: "+worldCoordsCM.x+"/"+worldCoordsCM.y);
+                }
                 //Log.i(TAG, "X: "+LAST_FOUND_COLOR_POS_X+"/ Y: "+LAST_FOUND_COLOR_POS_Y);
 
                 Double max = new Double(0);
