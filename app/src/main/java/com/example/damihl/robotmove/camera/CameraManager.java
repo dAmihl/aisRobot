@@ -58,7 +58,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     public Scalar GREEN_COLOR = new Scalar(107.78125, 255.0, 127.546875, 0.0);
     public Scalar RED_COLOR = new Scalar(250.484375, 197.3125, 249.765625, 0.0);
-    public Scalar BLUE_COLOR = new Scalar(146.453125, 241.765625, 228.828125, 0.0);
+    public Scalar BLUE_COLOR = new Scalar(155.21875, 239.375, 96.609375, 0.0);
 
     private int CAMERA_VIEW_WIDTH;
     private int CAMERA_VIEW_HEIGHT;
@@ -123,8 +123,14 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     public void computeHomography(){
         this.mHomography = HomographyManager.getInstance().getHomographyMatrix(mRgba);
-        if (mHomography.size().area() > 0) Log.i(TAG, "Homography Matrix set!");
-        else Log.i(TAG, "Homography Matrix couldnt be set!!");
+        if (mHomography.size().area() > 0){
+            Log.i(TAG, "Homography Matrix set!");
+            MainActivity.getInstance().showToastText("Homography Matrix set!");
+        }
+        else {
+            Log.i(TAG, "Homography Matrix couldnt be set!!");
+            MainActivity.getInstance().showToastText("Homography Matrix couldn't be set!");
+        }
     }
 
     private boolean homographySet(){
@@ -262,9 +268,15 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
                (LAST_FOUND_COLOR_POS_X >= SCREEN_MID_X - SCREEN_MID_OFFSET)
                */;
 
-        Log.i(TAG, "X: "+LAST_FOUND_COLOR_POS_X+ "IS IN "+SCREEN_MID_X+"?");
+       // Log.i(TAG, "X: "+LAST_FOUND_COLOR_POS_X+ "IS IN "+SCREEN_MID_X+"?");
 
         return isInMid;
+    }
+
+    public boolean checkColorNotInCage(){
+
+        return (LAST_FOUND_COLOR_POS_Y < SCREEN_IN_RANGE_Y_VALUE);
+
     }
 
     public boolean checkColorInRange(){
@@ -331,6 +343,17 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         touchedRegionRgba.release();
         touchedRegionHsv.release();
         return false; // don't need subsequent touch events
+    }
+
+    public Point getTargetHomographyCoordinates(){
+        if (homographySet()){
+            Point worldCoordsCM = HomographyManager.getInstance().getWorldCoordinatesInCentimeter(new Point(LAST_FOUND_COLOR_POS_X, LAST_FOUND_COLOR_POS_Y), mHomography);
+            return worldCoordsCM;
+        }else{
+            Log.e(TAG, "Homography not set yet!");
+            MainActivity.getInstance().showToastText("Homography not set yet!");
+            return null;
+        }
     }
 
 

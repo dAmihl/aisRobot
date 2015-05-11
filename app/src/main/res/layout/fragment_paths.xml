@@ -8,7 +8,8 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:layout_gravity="right|top">
 
         <Button
             style="?android:attr/buttonStyleSmall"
@@ -27,29 +28,39 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Search Green Ball"
-            android:id="@+id/btn_searchGreenBall"
+            android:text="Search Blue Ball"
+            android:id="@+id/btn_searchBlueBall"
             android:layout_gravity="center_horizontal"
             android:clickable="true"
-            android:onClick="onButtonSearchGreenBallClick" />
+            android:onClick="onButtonSearchBlueBallClick" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search Green Ball"
+            android:id="@+id/btn_searchGreenBall"
+            android:clickable="true"
+            android:onClick="onButtonSearchGreenBallClick"
+            android:layout_gravity="center_horizontal" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Collect color"
+            android:id="@+id/btnCollectColor"
+            android:layout_gravity="center_horizontal"
+            android:clickable="true"
+            android:onClick="onButtonCollectColorsClick" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search Red Ball"
             android:id="@+id/btn_searchRedBall"
-            android:layout_gravity="center_horizontal"
             android:clickable="true"
-            android:onClick="onButtonSearchRedBallClick" />
+            android:onClick="onButtonSearchRedBallClick"
+            android:layout_gravity="center_horizontal" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Search Blue Ball"
-            android:id="@+id/btn_searchBlueBall"
-            android:layout_gravity="center_horizontal"
-            android:clickable="true"
-            android:onClick="onButtonSearchBlueBallClick" />
     </LinearLayout>
 
 </FrameLayout>

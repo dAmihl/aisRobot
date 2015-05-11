@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.example.damihl.robotmove.camera.CameraManager;
@@ -39,6 +40,8 @@ import com.example.damihl.robotmove.uifragments.PathsFragment;
 import com.example.damihl.robotmove.uifragments.SensorFragment;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 
+import org.opencv.core.Point;
+
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
@@ -52,12 +55,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     private static final Integer FRAGMENT_CONTROL_INDEX = 0;
-    private static final Integer FRAGMENT_LOG_INDEX = 1;
-    private static final Integer FRAGMENT_ODOMETRY_INDEX = 2;
+    private static final Integer FRAGMENT_LOG_INDEX = 5;
+    private static final Integer FRAGMENT_ODOMETRY_INDEX = 6;
     private static final Integer FRAGMENT_SENSOR_INDEX = 3;
     private static final Integer FRAGMENT_COORD_MOVE_INDEX = 4;
-    private static final Integer FRAGMENT_PATHS_INDEX = 5;
-    private static final Integer FRAGMENT_CAMERA_INDEX = 6;
+    private static final Integer FRAGMENT_PATHS_INDEX = 1;
+    private static final Integer FRAGMENT_CAMERA_INDEX = 2;
 
 
     private ConnectionManager connectionManager;
@@ -207,17 +210,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             switch (position) {
                 case 0:
                     return getString(R.string.title_section1).toUpperCase(l);
-                case 1:
+                case 5:
                     return getString(R.string.title_section2).toUpperCase(l);
-                case 2:
+                case 6:
                     return getString(R.string.title_section3).toUpperCase(l);
                 case 3:
                     return getString(R.string.title_section4).toUpperCase(l);
                 case 4:
                     return getString(R.string.title_section5).toUpperCase(l);
-                case 5:
+                case 1:
                     return getString(R.string.title_section6).toUpperCase(l);
-                case 6:
+                case 2:
                     return getString(R.string.title_section7).toUpperCase(l);
 
             }
@@ -377,6 +380,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    public void onButtonCollectColorsClick(View v){
+        if (checkConnection()){
+            CameraManager.getInstance().setColor(CameraManager.getInstance().BLUE_COLOR);
+            TaskManager.getInstance().executeTaskQueue(Task.getNewCollectColorTaskQueue(2, 1, 50,50));
+        }
+    }
+
     public void onButtonSetGreenColor(View v){
         CameraManager.getInstance().setGreenTouchedColor();
     }
@@ -393,6 +403,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         CameraManager.getInstance().computeHomography();
     }
 
+    public void onButtonMoveToHomographyClick(View v){
+        Point target = CameraManager.getInstance().getTargetHomographyCoordinates();
+        if (target != null){
+            TaskQueue moveTask = Task.getNewMoveToTaskQueue(15,15,(int) target.x, (int) target.y);
+            TaskManager.getInstance().moveToTarget = new RobotPosVector((int) target.x, (int) target.y, 0);
+            TaskManager.getInstance().executeTaskQueue(moveTask);
+        }
+    }
 
     public void onButtonMoveTowardsClick(View v){
         if (checkConnection()){
@@ -555,12 +573,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         TextView connection = (TextView) findViewById(R.id.textConnectionStatus);
         if (connectionManager.getDriver().isConnected()){
             connection.setText("connected");
+            showToastText("connected");
             return true;
         }else{
             connection.setText("disconnected");
             threadSafeDebugOutput("disconnected");
             return false;
         }
+    }
+
+    public void showToastText(String msg){
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(this, msg, duration);
+        toast.show();
     }
 
 

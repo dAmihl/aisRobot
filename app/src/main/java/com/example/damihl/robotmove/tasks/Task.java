@@ -9,6 +9,8 @@ import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 
+import org.opencv.core.Point;
+
 import java.util.LinkedList;
 
 /**
@@ -237,6 +239,37 @@ public class Task {
         return queue;
     }
 
+    public static TaskQueue getNewCollectColorTaskQueue(int maxBalls, int ballsPerRun, int targetX, int targetY){
+
+        TaskQueue queue = new TaskQueue();
+
+        int numRuns = maxBalls / ballsPerRun;
+
+        for (int j = 0; j < numRuns; j++) {
+
+            for (int i = 0; i < ballsPerRun; i++) {
+                queue.addAll(getNewCollectBallTaskQueue());
+            }
+            queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(15, 15, targetX, targetY));
+            queue.add(getNewRaiseBarTask());
+
+        }
+
+        queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(15, 15, 0, 0));
+        return queue;
+    }
+
+    public static TaskQueue getNewCollectBallTaskQueue(){
+        TaskQueue queue = new TaskQueue();
+        queue.add(getNewTurnForColorTask());
+        queue.add(getNewRaiseBarTask());
+        queue.add(getNewMoveUntilColorTask());
+        //Point ballPos = CameraManager.getInstance().getTargetHomographyCoordinates();
+        //queue.addAll(getNewMoveToTaskQueue(15,15, (int) ballPos.x, (int) ballPos.y));
+        queue.add(getNewLowerBarTask());
+        return queue;
+    }
+
     public static TaskQueue getNewColorAwarePath(){
         TaskQueue queue = new TaskQueue();
         int size1 = 25;
@@ -413,7 +446,7 @@ public class Task {
         return new TaskCondition() {
             @Override
             public boolean taskFinishCondition() {
-                return CameraManager.getInstance().checkColorInMiddle();
+                return CameraManager.getInstance().checkColorInMiddle() && !CameraManager.getInstance().checkColorInRange();
             }
         };
     }
