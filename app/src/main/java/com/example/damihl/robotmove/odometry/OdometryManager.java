@@ -110,6 +110,11 @@ public class OdometryManager {
     public void resetOdometry(){
         initState();
         currentPosition = new RobotPosVector(0,0,0);
+        MainActivity.getInstance().setOdometryData(currentPosition.x, currentPosition.y, currentPosition.getAngle());
+    }
+
+    public void setCurrentPosition(RobotPosVector currentPos){
+        this.currentPosition = currentPos;
     }
 
     /**

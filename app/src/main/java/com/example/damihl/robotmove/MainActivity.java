@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ import com.example.damihl.robotmove.uifragments.OdometryFragment;
 import com.example.damihl.robotmove.uifragments.PathsFragment;
 import com.example.damihl.robotmove.uifragments.SensorFragment;
 import com.example.damihl.robotmove.utils.RobotPosVector;
+import com.example.damihl.robotmove.utils.WorldPoint;
 
 import org.opencv.core.Point;
 
@@ -121,6 +123,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
         instance = this;
         init();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
 
@@ -247,6 +250,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
             fragment.setArguments(args);
+
             return fragment;
         }
 
@@ -257,6 +261,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_tabbed, container, false);
+
             return rootView;
         }
     }
@@ -381,9 +386,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void onButtonCollectColorsClick(View v){
+
+        int workspaceFromX = -50;
+        int workspaceFromY = -50;
+        int workspaceToX = 50;
+        int workspaceToY = 50;
+        int numSubspaces = 16;
+
+
+
         if (checkConnection()){
             CameraManager.getInstance().setColor(CameraManager.getInstance().BLUE_COLOR);
-            TaskManager.getInstance().executeTaskQueue(Task.getNewCollectColorTaskQueue(2, 1, 50,50));
+            TaskManager.getInstance().executeTaskQueue(Task.getNewCollectColorTaskQueue(2, 1, 0,0));
         }
     }
 

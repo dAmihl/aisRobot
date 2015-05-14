@@ -8,6 +8,7 @@ import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
 import com.example.damihl.robotmove.utils.RobotPosVector;
+import com.example.damihl.robotmove.utils.WorldPoint;
 
 import org.opencv.core.Point;
 
@@ -127,14 +128,12 @@ public class Task {
         TaskQueue queue = new TaskQueue();
 
         Task turnTask = getNewTurnToTask(velR, velL, x, y);
-        MainActivity.getInstance().threadSafeDebugOutput("TurnTaskTarget: " + turnTask.getTarget());
         queue.add(turnTask);
 
 
         Task moveTask = getNewMoveTask(velR, velL, x, y);
 
         queue.add(moveTask);
-        MainActivity.getInstance().threadSafeDebugOutput("MoveTaskTarget: "+moveTask.getTarget());
 
         return queue;
     }
@@ -143,7 +142,6 @@ public class Task {
         TaskQueue queue = new TaskQueue();
 
         Task turnTask = getNewTurnToTask(velR, velL, x, y);
-        MainActivity.getInstance().threadSafeDebugOutput("TurnTaskTarget: " + turnTask.getTarget());
         queue.add(turnTask);
 
 
@@ -151,7 +149,6 @@ public class Task {
 
 
         queue.add(moveTask);
-        MainActivity.getInstance().threadSafeDebugOutput("MoveTaskTarget: "+moveTask.getTarget());
 
         return queue;
     }
@@ -227,9 +224,10 @@ public class Task {
     }
 
     public static TaskQueue getNewFindColorTaskQueue(){
-        int targetPosX = (int) (150 / 2.1);
-        int targetPosY = (int) (150 / 2.1);
+        int targetPosX = (int) (50 / 2.1);
+        int targetPosY = (int) (50 / 2.1);
         TaskQueue queue = new TaskQueue();
+        //queue.add(getNewTurnForColorTask());
         queue.add(getNewTurnForColorTask());
         queue.add(getNewMoveUntilColorTask());
         queue.add(getNewLowerBarTask());
@@ -237,6 +235,44 @@ public class Task {
         queue.add(getNewRaiseBarTask());
         queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(12, 12, 0, 0));
         return queue;
+    }
+
+    public static TaskQueue getNewExploreWorkspaceForColorTaskQueue(int workspaceFromX, int workspaceFromY, int workspaceToX, int workspaceToY, int numSubspaces){
+        int speed = 15;
+        TaskQueue queue = new TaskQueue();
+
+        WorldPoint[][] subspacePoints = getSubspacesWorldpoints(workspaceFromX, workspaceFromY, workspaceToX, workspaceToY, numSubspaces);
+        for (int i = 0; i <  Math.sqrt(numSubspaces); i++){
+            for (int j = 0; j <  Math.sqrt(numSubspaces); j++) {
+                queue.addAll(getNewColorAwareMoveToTask(speed, speed, (int) subspacePoints[i][j].getX(), (int) subspacePoints[i][j].getY()));
+                queue.add(getNewTurnOnceForColorTask());
+            }
+        }
+        return queue;
+    }
+
+    public static WorldPoint[][] getSubspacesWorldpoints(int workspaceFromX, int workspaceFromY, int workspaceToX, int workspaceToY, int numSubspaces){
+        WorldPoint[][] points = new WorldPoint[numSubspaces/2][numSubspaces/2];
+
+        if (numSubspaces % 2 != 0) {
+            Log.e("TASK", "Number of subspaces must be a multiple of 2!");
+            return null;
+        }
+
+        int lengthWorkspaceX = Math.abs(workspaceToX - workspaceFromX);
+        int lengthWorkspaceY = Math.abs(workspaceToY - workspaceFromY);
+
+        for (int i = 0; i < numSubspaces/2; i++){
+            for (int j = 0; j < numSubspaces/2; j++){
+                float px = ((2*i)+1) * lengthWorkspaceX / numSubspaces;
+                float py = ((2*j)+1) * lengthWorkspaceY / numSubspaces;
+
+                px -= Math.abs(workspaceFromX);
+                py -= Math.abs(workspaceFromY);
+                points[i][j] = new WorldPoint(px, py);
+            }
+        }
+        return points;
     }
 
     public static TaskQueue getNewCollectColorTaskQueue(int maxBalls, int ballsPerRun, int targetX, int targetY){
@@ -261,7 +297,8 @@ public class Task {
 
     public static TaskQueue getNewCollectBallTaskQueue(){
         TaskQueue queue = new TaskQueue();
-        queue.add(getNewTurnForColorTask());
+        //queue.add(getNewTurnForColorTask());
+        queue.addAll(getNewExploreWorkspaceForColorTaskQueue(-50,-50,50,50,4));
         queue.add(getNewRaiseBarTask());
         queue.add(getNewMoveUntilColorTask());
         //Point ballPos = CameraManager.getInstance().getTargetHomographyCoordinates();
@@ -304,14 +341,12 @@ public class Task {
         TaskQueue queue = new TaskQueue();
 
         Task turnTask = getNewColorAwareTurnToTask(velR, velL, x, y);
-        MainActivity.getInstance().threadSafeDebugOutput("TurnTaskTarget: " + turnTask.getTarget());
         queue.add(turnTask);
 
 
         Task moveTask = getNewColorAwareMoveTask(velR, velL, x, y);
 
         queue.add(moveTask);
-        MainActivity.getInstance().threadSafeDebugOutput("MoveTaskTarget: "+moveTask.getTarget());
 
         return queue;
     }
@@ -334,6 +369,11 @@ public class Task {
 
     public static Task getNewTurnForColorTask(){
         return new Task(12,-12,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorSearchTaskCondition());
+    }
+
+    public static Task getNewTurnOnceForColorTask(){
+
+        return new Task(12,-12, OdometryManager.getInstance().getCurrentPosition(), getStandardMoveTaskExecution(), getStandardColorAwareTaskCondition());
     }
 
     public static Task getNewMoveUntilColorTask(){
@@ -467,6 +507,7 @@ public class Task {
             @Override
             public boolean taskFinishCondition() {
                 if (OdometryManager.getInstance().checkTargetReached()){
+                    OdometryManager.getInstance().setCurrentPosition(OdometryManager.getInstance().getTargetPosition());
                     TaskManager.getInstance().targetReachedCallback();
                     return true;
                 }

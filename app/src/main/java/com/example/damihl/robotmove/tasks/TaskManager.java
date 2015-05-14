@@ -111,6 +111,7 @@ public class TaskManager implements EventCallback {
 
     public void executeTaskQueue(TaskQueue queue){
 
+        queue.addAll(this.taskQueue);
         this.taskQueue.clear();
         this.taskQueue.addAll(queue);
         CURRENT_STATE = STATE.NEXT_TASK;
@@ -173,6 +174,7 @@ public class TaskManager implements EventCallback {
     }
 
     public synchronized void colorInScreenCallback(){
+        Log.i("TASKMAN", "Color in screen callback.");
         this.executeTaskQueue(Task.getNewFindColorTaskQueue());
     }
 

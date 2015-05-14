@@ -58,7 +58,11 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     public Scalar GREEN_COLOR = new Scalar(107.78125, 255.0, 127.546875, 0.0);
     public Scalar RED_COLOR = new Scalar(250.484375, 197.3125, 249.765625, 0.0);
-    public Scalar BLUE_COLOR = new Scalar(155.21875, 239.375, 96.609375, 0.0);
+    //public Scalar BLUE_COLOR = new Scalar(155.21875, 239.375, 96.609375, 0.0);
+    // beim gerry
+    public Scalar BLUE_COLOR = new Scalar(155.171875, 185.0, 189.796875, 0.0);
+    public Scalar YELLOW_COLOR = new Scalar(155.171875, 185.0, 189.796875, 0.0);
+
 
     private int CAMERA_VIEW_WIDTH;
     private int CAMERA_VIEW_HEIGHT;
@@ -116,10 +120,20 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         mOpenCvCameraView.setOnTouchListener(this);
         mOpenCvCameraView.enableView();
 
-
-
-
     }
+
+
+
+
+    public int countNumberOfContours(Scalar color){
+        mDetector.setHsvColor(color);
+        mDetector.process(mRgba);
+        List<MatOfPoint> contours = mDetector.getContours();
+        return contours.size();
+    }
+
+
+
 
     public void computeHomography(){
         this.mHomography = HomographyManager.getInstance().getHomographyMatrix(mRgba);
@@ -174,48 +188,6 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     }
 
-/*
-    public void joinThread() throws InterruptedException {
-        if (this.camThread != null)
-            this.camThread.join();
-    }
-
-    public void initCamThread(final MainActivity appl, final ControlManager control){
-        camThread = new Thread(new Runnable(){
-
-            @Override
-            public void run() {
-                while(true) {
-                    update();
-                    try {
-                        Thread.sleep(sleepTime);
-                    } catch (Exception e) {
-                        appl.threadSafeDebugOutput(e.toString());
-                    }
-                }
-            }
-
-        });
-    }
-
-    public void startCameraManager(final ControlManager control, final MainActivity appl){
-        try {
-            camThread.start();
-        }catch(Exception e){
-            appl.threadSafeDebugOutput("camera manager error: "+e);
-        }
-        appl.threadSafeDebugOutput("camera manager started");
-    }
-
-    public void update(){
-        if (checkColorInMiddle()){
-            Log.i(TAG, "CAM FOUND COLOR IN MIDDLE");
-        }
-        if (checkColorInRange()){
-            Log.i(TAG, "COLOR BLOB IN RANGE NOW!!");
-        };
-    }
-*/
     @Override
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4);
@@ -231,7 +203,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
         SCREEN_MID_Y = height / 2;
         SCREEN_MID_X = width /2;
-        SCREEN_MID_OFFSET = (int) (width * 0.01);
+        SCREEN_MID_OFFSET = (int) (width * 0.1);
         SCREEN_IN_RANGE_RADIUS = (int)(width * 0.2);
         SCREEN_IN_RANGE_Y_VALUE = (int) (height * 0.9);
 
@@ -365,6 +337,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
             List<MatOfPoint> contours = mDetector.getContours();
            // Log.e(TAG, "Contours count: " + contours.size());
             Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
+
             if (contours.size() == 1) {
                 Point centroid = new Point(0, 0);
                 for (Point p : contours.get(0).toArray()) {

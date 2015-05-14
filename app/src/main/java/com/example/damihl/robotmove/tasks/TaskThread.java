@@ -11,7 +11,7 @@ public class TaskThread extends Thread {
     private Task task;
     private EventCallback callback;
 
-    private final static int sleepTime = 100;
+    private final static int sleepTime = 50;
 
     public TaskThread(Task t, EventCallback callbackObject){
         this.task = t;
