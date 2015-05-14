@@ -387,11 +387,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void onButtonCollectColorsClick(View v){
 
-        int workspaceFromX = -50;
-        int workspaceFromY = -50;
-        int workspaceToX = 50;
-        int workspaceToY = 50;
-        int numSubspaces = 16;
+
 
 
 

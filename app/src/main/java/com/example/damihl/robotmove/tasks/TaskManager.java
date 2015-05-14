@@ -38,7 +38,7 @@ public class TaskManager implements EventCallback {
 
 
     private enum STATE {
-        OBSTACLE_FOUND,NORMAL, FINISHED, NEXT_TASK
+        OBSTACLE_FOUND,NORMAL, FINISHED, NEXT_TASK, COLOR_FOUND
     }
 
     private STATE CURRENT_STATE;
@@ -82,6 +82,12 @@ public class TaskManager implements EventCallback {
                             e.printStackTrace();
                         }
                         obstacleAvoid();
+                    }else if (CURRENT_STATE == STATE.COLOR_FOUND){
+                        try {
+                            taskThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     } else if (CURRENT_STATE == STATE.FINISHED){
                         if (targetStack != null) {
                             if (!targetStack.isEmpty()) {
@@ -174,8 +180,21 @@ public class TaskManager implements EventCallback {
     }
 
     public synchronized void colorInScreenCallback(){
+
+       if (this.CURRENT_STATE == STATE.COLOR_FOUND) return;
+
         Log.i("TASKMAN", "Color in screen callback.");
-        this.executeTaskQueue(Task.getNewFindColorTaskQueue());
+        this.CURRENT_STATE = STATE.COLOR_FOUND;
+        executeTaskQueue(Task.getNewFindColorTaskQueue());
+
+    }
+
+    public synchronized void colorBroughtBack(){
+
+        if (this.CURRENT_STATE != STATE.COLOR_FOUND) return;
+
+        Log.i("TASKMAN", "Color in screen callback.");
+        this.CURRENT_STATE = STATE.NEXT_TASK;
     }
 
     @Override

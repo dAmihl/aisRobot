@@ -234,6 +234,18 @@ public class Task {
         queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(12, 12, targetPosX, targetPosY));
         queue.add(getNewRaiseBarTask());
         queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(12, 12, 0, 0));
+        queue.add(new Task(0,0,OdometryManager.getInstance().getCurrentPosition(), new TaskExecution() {
+            @Override
+            public void execution(Task t) {
+                TaskManager.getInstance().colorBroughtBack();
+            }
+        }, new TaskCondition(){
+
+            @Override
+            public boolean taskFinishCondition() {
+                return true;
+            }
+        }));
         return queue;
     }
 
@@ -298,7 +310,7 @@ public class Task {
     public static TaskQueue getNewCollectBallTaskQueue(){
         TaskQueue queue = new TaskQueue();
         //queue.add(getNewTurnForColorTask());
-        queue.addAll(getNewExploreWorkspaceForColorTaskQueue(-50,-50,50,50,4));
+        queue.addAll(getNewExploreWorkspaceForColorTaskQueue(-25,-25,25,25,4));
         queue.add(getNewRaiseBarTask());
         queue.add(getNewMoveUntilColorTask());
         //Point ballPos = CameraManager.getInstance().getTargetHomographyCoordinates();
