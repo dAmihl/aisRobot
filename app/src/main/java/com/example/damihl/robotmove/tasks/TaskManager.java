@@ -84,10 +84,12 @@ public class TaskManager implements EventCallback {
                         obstacleAvoid();
                     }else if (CURRENT_STATE == STATE.COLOR_FOUND){
                         try {
-                            taskThread.join();
+                            if (taskThread != null)
+                                taskThread.join();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                        startNextTask();
                     } else if (CURRENT_STATE == STATE.FINISHED){
                         if (targetStack != null) {
                             if (!targetStack.isEmpty()) {
