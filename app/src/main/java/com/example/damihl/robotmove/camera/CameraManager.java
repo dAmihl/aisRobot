@@ -308,7 +308,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         Log.i(TAG, "TOUCHED HSV COLOR: "+mBlobColorHsv);
         Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", " + mBlobColorRgba.val[1] +
                 ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
-        mDetector.setHsvColor(mBlobColorHsv);
+        //mDetector.setHsvColor(mBlobColorHsv);
         Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
 
         mIsColorSelected = true;

@@ -27,11 +27,17 @@ import java.util.LinkedList;
  */
 public class Task {
 
+    public final static int STANDARD_MOVE_SPEED = 25;
+    public final static int STANDARD_TURN_SPEED = 12;
+
     private int velocityRight;
     private int velocityLeft;
 
     private TaskExecution execution;
     private TaskCondition finishCondition;
+
+    private static int COLLECTING_BALL_TARGET_X = 0;
+    private static int COLLECTING_BALL_TARGET_Y = 0;
 
 
     private RobotPosVector target;
@@ -112,7 +118,7 @@ public class Task {
 
     public static Task getNewColorAwareTurnToTask(int velR, int velL, int x, int y){
        Task t = getNewTurnToTask(velR, velL, x, y);
-        t.setFinishCondition(getStandardColorAwareTaskCondition());
+        t.setFinishCondition(getStandardColorAwareTurnTaskCondition());
         return t;
     }
 
@@ -224,16 +230,15 @@ public class Task {
     }
 
     public static TaskQueue getNewFindColorTaskQueue(){
-        int targetPosX = (int) (50 / 2.1);
-        int targetPosY = (int) (50 / 2.1);
+        int targetPosX = (int) (COLLECTING_BALL_TARGET_X / 2.1);
+        int targetPosY = (int) (COLLECTING_BALL_TARGET_Y / 2.1);
         TaskQueue queue = new TaskQueue();
-        //queue.add(getNewTurnForColorTask());
         queue.add(getNewTurnForColorTask());
         queue.add(getNewMoveUntilColorTask());
         queue.add(getNewLowerBarTask());
-        queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(12, 12, targetPosX, targetPosY));
+        queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, targetPosX, targetPosY));
         queue.add(getNewRaiseBarTask());
-        queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(12, 12, 0, 0));
+        //queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, 0, 0));
         queue.add(new Task(0,0,OdometryManager.getInstance().getCurrentPosition(), new TaskExecution() {
             @Override
             public void execution(Task t) {
@@ -250,7 +255,7 @@ public class Task {
     }
 
     public static TaskQueue getNewExploreWorkspaceForColorTaskQueue(int workspaceFromX, int workspaceFromY, int workspaceToX, int workspaceToY, int numSubspaces){
-        int speed = 15;
+        int speed = STANDARD_MOVE_SPEED;
         TaskQueue queue = new TaskQueue();
 
         WorldPoint[][] subspacePoints = getSubspacesWorldpoints(workspaceFromX, workspaceFromY, workspaceToX, workspaceToY, numSubspaces);
@@ -291,6 +296,9 @@ public class Task {
 
         TaskQueue queue = new TaskQueue();
 
+        COLLECTING_BALL_TARGET_X = targetX;
+        COLLECTING_BALL_TARGET_Y = targetY;
+
         int numRuns = maxBalls / ballsPerRun;
 
         for (int j = 0; j < numRuns; j++) {
@@ -298,24 +306,21 @@ public class Task {
             for (int i = 0; i < ballsPerRun; i++) {
                 queue.addAll(getNewCollectBallTaskQueue());
             }
-            queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(15, 15, targetX, targetY));
-            queue.add(getNewRaiseBarTask());
+           // queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, targetX, targetY));
+            //queue.add(getNewRaiseBarTask());
 
         }
 
-        queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(15, 15, 0, 0));
+        queue.addAll(getNewMoveToWithoutObstacleAvoidTaskQueue(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, 0, 0));
         return queue;
     }
 
     public static TaskQueue getNewCollectBallTaskQueue(){
         TaskQueue queue = new TaskQueue();
-        //queue.add(getNewTurnForColorTask());
-        queue.addAll(getNewExploreWorkspaceForColorTaskQueue(-25,-25,25,25,4));
-        queue.add(getNewRaiseBarTask());
+        queue.addAll(getNewExploreWorkspaceForColorTaskQueue(-50,-50,50,50,4));
+        /*queue.add(getNewRaiseBarTask());
         queue.add(getNewMoveUntilColorTask());
-        //Point ballPos = CameraManager.getInstance().getTargetHomographyCoordinates();
-        //queue.addAll(getNewMoveToTaskQueue(15,15, (int) ballPos.x, (int) ballPos.y));
-        queue.add(getNewLowerBarTask());
+        queue.add(getNewLowerBarTask());*/
         return queue;
     }
 
@@ -327,25 +332,25 @@ public class Task {
         int size4 = 100;
         int size5 = 125;
 
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, size1,0));
-        queue.addAll(getNewColorAwareMoveToTask(12,12, size1, size1));
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, 0, size1));
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, 0, 0));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, size1,0));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED,STANDARD_MOVE_SPEED, size1, size1));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, 0, size1));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, 0, 0));
 
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, size2,0));
-        queue.addAll(getNewColorAwareMoveToTask(12,12, size2, size2));
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, 0, size2));
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, 0, 0));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, size2,0));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED,STANDARD_MOVE_SPEED, size2, size2));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, 0, size2));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, 0, 0));
 
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, size3,0));
-        queue.addAll(getNewColorAwareMoveToTask(12,12, size3, size3));
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, 0, size3));
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, 0, 0));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, size3,0));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED,STANDARD_MOVE_SPEED, size3, size3));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, 0, size3));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, 0, 0));
 
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, size4,0));
-        queue.addAll(getNewColorAwareMoveToTask(12,12, size4, size4));
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, 0, size4));
-        queue.addAll(getNewColorAwareMoveToTask(12, 12, 0, 0));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, size4,0));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED,STANDARD_MOVE_SPEED, size4, size4));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, 0, size4));
+        queue.addAll(getNewColorAwareMoveToTask(STANDARD_MOVE_SPEED, STANDARD_MOVE_SPEED, 0, 0));
         return queue;
     }
 
@@ -366,7 +371,7 @@ public class Task {
     public static Task getNewColorAwareTurnTask(int degree){
         RobotPosVector target = new RobotPosVector(OdometryManager.getInstance().getCurrentPosition().getX(), OdometryManager.getInstance().getCurrentPosition().getY(), OdometryManager.getInstance().getCurrentPosition().getAngle());
         target.addAngle(degree);
-        return new Task(12,-12, target, getStandardTurnTaskExecution(),getStandardColorAwareTaskCondition());
+        return new Task(STANDARD_TURN_SPEED,-STANDARD_TURN_SPEED, target, getStandardTurnTaskExecution(),getStandardColorAwareTurnTaskCondition());
     }
 
     public static Task getNewColorAwareMoveTask(int velR, int velL, int x, int y){
@@ -380,16 +385,16 @@ public class Task {
 
 
     public static Task getNewTurnForColorTask(){
-        return new Task(12,-12,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorSearchTaskCondition());
+        return new Task(STANDARD_TURN_SPEED,-STANDARD_TURN_SPEED,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorSearchTaskCondition());
     }
 
     public static Task getNewTurnOnceForColorTask(){
 
-        return new Task(12,-12, OdometryManager.getInstance().getCurrentPosition(), getStandardMoveTaskExecution(), getStandardColorAwareTaskCondition());
+        return new Task(STANDARD_TURN_SPEED,-STANDARD_TURN_SPEED, OdometryManager.getInstance().getCurrentPosition(), getStandardColorAwareTurnOnceTaskExecution(), getStandardColorAwareTurnOnceTaskCondition());
     }
 
     public static Task getNewMoveUntilColorTask(){
-        return new Task(12,12,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorInRangeTaskCondition());
+        return new Task(STANDARD_MOVE_SPEED,STANDARD_MOVE_SPEED,OdometryManager.getInstance().getCurrentPosition(),getStandardMoveTaskExecution(), getColorInRangeTaskCondition());
     }
 
     public static Task getNewLowerBarTask(){
@@ -472,7 +477,8 @@ public class Task {
                     TaskManager.getInstance().colorInScreenCallback();
                     return true;
                 }
-                if (OdometryManager.getInstance().checkTargetReached()){
+                if (OdometryManager.getInstance().getCurrentPosition().isAt(OdometryManager.getInstance().getTargetPosition())){
+                    //OdometryManager.getInstance().setCurrentPosition(OdometryManager.getInstance().getTargetPosition());
                     TaskManager.getInstance().targetReachedCallback();
                     return true;
                 }
@@ -480,6 +486,63 @@ public class Task {
             }
         };
     }
+
+    public static TaskCondition getStandardColorAwareTurnTaskCondition(){
+        return new TaskCondition() {
+            @Override
+            public boolean taskFinishCondition() {
+                if (CameraManager.getInstance().checkColorInScreen()){
+                    TaskManager.getInstance().colorInScreenCallback();
+                    return true;
+                }
+                if (OdometryManager.getInstance().getCurrentPosition().isAtWithAngle(OdometryManager.getInstance().getTargetPosition())){
+                    OdometryManager.getInstance().setCurrentPosition(OdometryManager.getInstance().getTargetPosition());
+                    TaskManager.getInstance().targetReachedCallback();
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
+
+    public static TaskCondition getStandardColorAwareTurnOnceTaskCondition(){
+        return new TaskCondition() {
+            @Override
+            public boolean taskFinishCondition() {
+                if (CameraManager.getInstance().checkColorInScreen()){
+                    TaskManager.getInstance().colorInScreenCallback();
+                    return true;
+                }
+                if (OdometryManager.getInstance().getCurrentPosition().isAtWithAngle(OdometryManager.getInstance().getTargetPosition())){
+                    OdometryManager.getInstance().setCurrentPosition(OdometryManager.getInstance().getTargetPosition());
+
+                    TaskManager.getInstance().targetReachedCallback();
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
+
+    public static TaskExecution getStandardColorAwareTurnOnceTaskExecution(){
+        return new TaskExecution() {
+                @Override
+                public void execution(Task t) {
+
+                    t.target = new RobotPosVector(OdometryManager.getInstance().getCurrentPosition().getX(),
+                    OdometryManager.getInstance().getCurrentPosition().getY(), OdometryManager.getInstance().getCurrentPosition().getAngle());
+                    t.target.addAngle(359);
+
+                    OdometryManager.getInstance().setTargetPosition(t.getTarget());
+                    OdometryManager.getInstance().setEventCallback(TaskManager.getInstance());
+                    ObstacleAvoidManager.getInstance().setEventCallback(TaskManager.getInstance());
+                    MainActivity.getInstance().joinManagerThreads();
+                    ControlManager.getInstance().robotSetVelocity((byte) t.getVelocityLeft(), (byte) t.getVelocityRight());
+                    MainActivity.getInstance().startManagers();
+                }
+            };
+        };
+
 
     public static TaskCondition getMoveWithoutObstacleAvoidTaskCondition(){
         return new TaskCondition() {
@@ -557,7 +620,7 @@ public class Task {
                 t.target = effTarget;
 
               //  int turnSpeed = Math.min(Math.abs(t.getVelocityLeft()), Math.abs(t.getVelocityRight()));
-                int turnSpeed = 12;
+                int turnSpeed = STANDARD_TURN_SPEED;
                 int left = turnSpeed;
                 int right = -turnSpeed;
 

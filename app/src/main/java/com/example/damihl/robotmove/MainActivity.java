@@ -386,14 +386,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void onButtonCollectColorsClick(View v){
-
-
-
-
-
         if (checkConnection()){
             CameraManager.getInstance().setColor(CameraManager.getInstance().BLUE_COLOR);
-            TaskManager.getInstance().executeTaskQueue(Task.getNewCollectColorTaskQueue(2, 1, 0,0));
+            TaskManager.getInstance().executeTaskQueue(Task.getNewCollectColorTaskQueue(1, 1, 0,0));
         }
     }
 

@@ -65,7 +65,7 @@ public class SensorManager {
         }
 
 
-        MainActivity.getInstance().threadSafeSensorDataOutput(arr);
+        //MainActivity.getInstance().threadSafeSensorDataOutput(arr);
 
 
     }
