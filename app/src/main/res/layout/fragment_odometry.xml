@@ -40,6 +40,15 @@
             android:clickable="true"
             android:onClick="onButtonResetOdometryClick" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Self Locate"
+            android:id="@+id/btn_selfLocate"
+            android:layout_gravity="center_horizontal"
+            android:clickable="true"
+            android:onClick="onButtonSelfLocateClick" />
+
 
     </LinearLayout>
 

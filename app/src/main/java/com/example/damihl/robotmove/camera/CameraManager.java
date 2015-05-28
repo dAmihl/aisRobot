@@ -55,13 +55,15 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     private Size SPECTRUM_SIZE;
     private Scalar               CONTOUR_COLOR;
 
+    private boolean BEACON_DETECTION_ON = false;
+
 
     public Scalar GREEN_COLOR = new Scalar(107.78125, 255.0, 127.546875, 0.0);
-    public Scalar RED_COLOR = new Scalar(250.484375, 197.3125, 249.765625, 0.0);
+    public Scalar RED_COLOR = new Scalar(117.25, 108.796875, 74.75, 0.0);
     //public Scalar BLUE_COLOR = new Scalar(155.21875, 239.375, 96.609375, 0.0);
     // beim gerry
-    public Scalar BLUE_COLOR = new Scalar(155.171875, 185.0, 189.796875, 0.0);
-    public Scalar YELLOW_COLOR = new Scalar(155.171875, 185.0, 189.796875, 0.0);
+    public Scalar BLUE_COLOR = new Scalar(140.859375, 144.53125, 196.4375, 0.0);
+    public Scalar YELLOW_COLOR = new Scalar(20.1875, 192.359375, 230.75, 0.0);
 
 
     private int CAMERA_VIEW_WIDTH;
@@ -100,6 +102,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
 
 
+
     public static CameraManager getInstance(){
         if (instance == null) instance = new CameraManager();
         return instance;
@@ -123,6 +126,13 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     }
 
 
+    public void setBeaconDetectionOn(boolean state){
+        this.BEACON_DETECTION_ON = state;
+    }
+
+    public Scalar getContourColor(){
+        return CONTOUR_COLOR;
+    }
 
 
     public int countNumberOfContours(Scalar color){
@@ -283,6 +293,8 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
         if(mOpenCvCameraView == null) return false;
 
+
+
         int cols = mRgba.cols();
         int rows = mRgba.rows();
         int xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
@@ -309,6 +321,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", " + mBlobColorRgba.val[1] +
                 ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
         //mDetector.setHsvColor(mBlobColorHsv);
+        if (mDetector.getSpectrum().size().area() > 0)
         Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
 
         mIsColorSelected = true;
@@ -332,6 +345,12 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
     public Mat onCameraFrame2(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
+
+        if (BEACON_DETECTION_ON){
+            SelfLocalizationManager.getInstance().beaconDetection(mRgba);
+            setBeaconDetectionOn(false);
+        }
+
         if(mIsColorSelected) {
             mDetector.process(mRgba);
             List<MatOfPoint> contours = mDetector.getContours();

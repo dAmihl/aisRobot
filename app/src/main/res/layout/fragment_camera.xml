@@ -72,4 +72,16 @@
         android:layout_toRightOf="@+id/id_btnSetB"
         android:layout_toEndOf="@+id/id_btnSetB" />
 
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Locate"
+        android:id="@+id/selfLocateCamera"
+        android:layout_alignTop="@+id/id_btnSetHomography"
+        android:layout_toRightOf="@+id/id_btnSetHomography"
+        android:layout_toEndOf="@+id/id_btnSetHomography"
+        android:clickable="true"
+        android:onClick="onButtonSelfLocateClick"/>
+
 </RelativeLayout>

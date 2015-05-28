@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 
 import com.example.damihl.robotmove.camera.CameraManager;
+import com.example.damihl.robotmove.camera.SelfLocalizationManager;
 import com.example.damihl.robotmove.connection.ConnectionManager;
 import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
@@ -415,6 +416,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             TaskManager.getInstance().moveToTarget = new RobotPosVector((int) target.x, (int) target.y, 0);
             TaskManager.getInstance().executeTaskQueue(moveTask);
         }
+    }
+
+    public void onButtonSelfLocateClick(View v){
+        CameraManager.getInstance().setBeaconDetectionOn(true);
     }
 
     public void onButtonMoveTowardsClick(View v){
