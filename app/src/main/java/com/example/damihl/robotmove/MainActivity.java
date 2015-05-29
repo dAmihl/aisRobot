@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 
 import com.example.damihl.robotmove.camera.CameraManager;
+import com.example.damihl.robotmove.camera.HomographyManager;
 import com.example.damihl.robotmove.camera.SelfLocalizationManager;
 import com.example.damihl.robotmove.connection.ConnectionManager;
 import com.example.damihl.robotmove.controls.ControlManager;
@@ -419,6 +420,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void onButtonSelfLocateClick(View v){
+
+        /*if (!CameraManager.getInstance().homographySet()){
+            Log.e(TAG, "Homography not set yet!");
+            MainActivity.getInstance().showToastText("Homography not set yet!");
+            return;
+        }*/
+
         CameraManager.getInstance().setBeaconDetectionOn(true);
     }
 

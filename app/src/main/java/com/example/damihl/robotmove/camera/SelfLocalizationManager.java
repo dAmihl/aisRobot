@@ -1,8 +1,5 @@
 package com.example.damihl.robotmove.camera;
 
-import android.graphics.ColorMatrix;
-
-import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 import com.example.damihl.robotmove.utils.WorldPoint;
 
@@ -77,7 +74,7 @@ public class SelfLocalizationManager {
     private static final WorldPoint BEACON_YELLOW_RED_POSITION = new WorldPoint(125, -125);
 
 
-    private static enum BEACON{
+    public static enum BEACON_TYPE {
         //from left to right
         // upper to lower color
         // given by exercise image on course homepage
@@ -85,6 +82,15 @@ public class SelfLocalizationManager {
         WHITE_BLUE,             WHITE_RED,  // mid
         YELLOW_BLUE, RED_BLUE, YELLOW_RED,  // bottom
         UNDEFINED // used for error handling
+    }
+
+    private List<MatOfPoint> filterTooSmallContours(List<MatOfPoint> contours){
+        for (MatOfPoint m: contours){
+            if (m.size().area() < COLOR_BATCH_MIN_SIZE){
+                contours.remove(m);
+            }
+        }
+        return contours;
     }
 
 
@@ -100,6 +106,11 @@ public class SelfLocalizationManager {
         mDetectorYellow.process(mRgba);
         List<MatOfPoint> contoursYellow = mDetectorYellow.getContours();
         Imgproc.drawContours(mRgba, contoursYellow, -1, CameraManager.getInstance().getContourColor());
+
+
+        filterTooSmallContours(contoursBlue);
+        filterTooSmallContours(contoursYellow);
+        filterTooSmallContours(contoursRed);
 
         int numContoursBlue = contoursBlue.size();
         int numContoursYellow = contoursYellow.size();
@@ -165,74 +176,136 @@ public class SelfLocalizationManager {
 
     private void determineBeacons(ArrayList<Point> batchesBlue, ArrayList<Point> batchesRed, ArrayList<Point> batchesYellow){
 
-        BEACON leftBeacon = determineLeftBeaconInScreen(batchesBlue, batchesRed, batchesYellow);
-        BEACON rightBeacon = determineRightBeaconInScreen(batchesBlue, batchesRed, batchesYellow);
+        Beacon leftBeacon = determineLeftBeaconInScreen(batchesBlue, batchesRed, batchesYellow);
+        Beacon rightBeacon = determineRightBeaconInScreen(batchesBlue, batchesRed, batchesYellow);
 
-        if (leftBeacon == BEACON.UNDEFINED || rightBeacon == BEACON.UNDEFINED){
+        if (leftBeacon.getType() == BEACON_TYPE.UNDEFINED || rightBeacon.getType() == BEACON_TYPE.UNDEFINED){
             Log.i(TAG, "At least one beacon could not be determined!");
             return;
         }
 
         Log.i(TAG, "BEACONS DETERMINED: "+leftBeacon+" AND "+rightBeacon);
 
+        Point leftBottomBeaconPoint = leftBeacon.getBottomBeaconPoint();
+        Point rightBottomBeaconPoint = rightBeacon.getBottomBeaconPoint();
+
+        Log.i(TAG, "Left Beacon Point: "+leftBottomBeaconPoint.x+"/"+leftBottomBeaconPoint.y);
+        Log.i(TAG, "Right Beacon Point: "+rightBottomBeaconPoint.x+"/"+rightBottomBeaconPoint.y);
+
+
+        Point robocentricLeftBeaconPoint = HomographyManager.getInstance().getWorldCoordinatesInCentimeter(leftBottomBeaconPoint, CameraManager.getInstance().getMatrixHomography());
+        Point robocentricRightBeaconPoint = HomographyManager.getInstance().getWorldCoordinatesInCentimeter(rightBottomBeaconPoint, CameraManager.getInstance().getMatrixHomography());
+
+        WorldPoint robocentricLeftBeaconWorldPoint = new WorldPoint((float) robocentricLeftBeaconPoint.x, (float) robocentricLeftBeaconPoint.y);
+
 
     }
 
-    private BEACON determineLeftBeaconInScreen(ArrayList<Point> batchesBlue, ArrayList<Point> batchesRed, ArrayList<Point> batchesYellow){
-        BEACON leftBeacon = BEACON.UNDEFINED;
+    private Beacon determineLeftBeaconInScreen(ArrayList<Point> batchesBlue, ArrayList<Point> batchesRed, ArrayList<Point> batchesYellow){
+        Beacon leftBeacon = new Beacon(BEACON_TYPE.UNDEFINED);
 
         Point minimumBlueX = getMinimumXFromBatches(batchesBlue);
         Point minimumRedX = getMinimumXFromBatches(batchesRed);
         Point minimumYellowX = getMinimumXFromBatches(batchesYellow);
 
         if (minimumBlueX == null || minimumRedX == null || minimumYellowX == null){
-            return BEACON.UNDEFINED;
+            leftBeacon.setType(BEACON_TYPE.UNDEFINED);
+            return leftBeacon;
         }
 
         if (Math.abs(minimumBlueX.x - minimumRedX.x) < BEACON_DETERMINATION_X_THRESHOLD){
-            if (minimumBlueX.y < minimumRedX.y) leftBeacon = BEACON.BLUE_RED;
-            else leftBeacon = BEACON.RED_BLUE;
+            if (minimumBlueX.y < minimumRedX.y){
+                leftBeacon.setType(BEACON_TYPE.BLUE_RED);
+                leftBeacon.getBottomBeaconPoint().x = (minimumBlueX.x + minimumRedX.x)/2;
+                leftBeacon.getBottomBeaconPoint().y = minimumRedX.y;
+            }
+            else {
+                leftBeacon.setType(BEACON_TYPE.RED_BLUE);
+                leftBeacon.getBottomBeaconPoint().x = (minimumBlueX.x + minimumRedX.x)/2;
+                leftBeacon.getBottomBeaconPoint().y = minimumBlueX.y;
+            }
         }
 
         if (Math.abs(minimumBlueX.x - minimumYellowX.x) < BEACON_DETERMINATION_X_THRESHOLD){
-            if (minimumBlueX.y < minimumYellowX.y) leftBeacon = BEACON.BLUE_YELLOW;
-            else leftBeacon = BEACON.YELLOW_BLUE;
+            if (minimumBlueX.y < minimumYellowX.y){
+                leftBeacon.setType(BEACON_TYPE.BLUE_YELLOW);
+                leftBeacon.getBottomBeaconPoint().x = (minimumBlueX.x + minimumYellowX.x)/2;
+                leftBeacon.getBottomBeaconPoint().y = minimumYellowX.y;
+            }
+            else{
+                leftBeacon.setType(BEACON_TYPE.YELLOW_BLUE);
+                leftBeacon.getBottomBeaconPoint().x = (minimumBlueX.x + minimumYellowX.x)/2;
+                leftBeacon.getBottomBeaconPoint().y = minimumBlueX.y;
+            }
         }
 
         if (Math.abs(minimumRedX.x - minimumYellowX.x) < BEACON_DETERMINATION_X_THRESHOLD){
-            if (minimumRedX.y < minimumYellowX.y) leftBeacon = BEACON.RED_YELLOW;
-            else leftBeacon = BEACON.YELLOW_RED;
+            if (minimumRedX.y < minimumYellowX.y){
+                leftBeacon.setType(BEACON_TYPE.RED_YELLOW);
+                leftBeacon.getBottomBeaconPoint().x = (minimumRedX.x + minimumYellowX.x)/2;
+                leftBeacon.getBottomBeaconPoint().y = minimumYellowX.y;
+            }
+            else{
+                leftBeacon.setType(BEACON_TYPE.YELLOW_RED);
+                leftBeacon.getBottomBeaconPoint().x = (minimumRedX.x + minimumYellowX.x)/2;
+                leftBeacon.getBottomBeaconPoint().y = minimumRedX.y;
+            }
         }
         return leftBeacon;
     }
 
 
-    private BEACON determineRightBeaconInScreen(ArrayList<Point> batchesBlue, ArrayList<Point> batchesRed, ArrayList<Point> batchesYellow){
-        BEACON leftBeacon = BEACON.UNDEFINED;
+    private Beacon determineRightBeaconInScreen(ArrayList<Point> batchesBlue, ArrayList<Point> batchesRed, ArrayList<Point> batchesYellow){
+        Beacon rightBeacon = new Beacon(BEACON_TYPE.UNDEFINED);
 
         Point maximumBlueX = getMaximumXFromBatches(batchesBlue);
         Point maximumRedX = getMaximumXFromBatches(batchesRed);
         Point maximumYellowX = getMaximumXFromBatches(batchesYellow);
 
         if (maximumBlueX == null || maximumRedX == null || maximumYellowX == null){
-            return BEACON.UNDEFINED;
+            rightBeacon.setType(BEACON_TYPE.UNDEFINED);
+            return rightBeacon;
         }
 
         if (Math.abs(maximumBlueX.x - maximumRedX.x) < BEACON_DETERMINATION_X_THRESHOLD){
-            if (maximumBlueX.y < maximumRedX.y) leftBeacon = BEACON.BLUE_RED;
-            else leftBeacon = BEACON.RED_BLUE;
+            if (maximumBlueX.y < maximumRedX.y){
+                rightBeacon.setType(BEACON_TYPE.BLUE_RED);
+                rightBeacon.getBottomBeaconPoint().x = (maximumBlueX.x + maximumRedX.x)/2;
+                rightBeacon.getBottomBeaconPoint().y = maximumRedX.y;
+            }
+            else{
+                rightBeacon.setType(BEACON_TYPE.RED_BLUE);
+                rightBeacon.getBottomBeaconPoint().x = (maximumBlueX.x + maximumRedX.x)/2;
+                rightBeacon.getBottomBeaconPoint().y = maximumBlueX.y;
+            }
         }
 
         if (Math.abs(maximumBlueX.x - maximumYellowX.x) < BEACON_DETERMINATION_X_THRESHOLD){
-            if (maximumBlueX.y < maximumYellowX.y) leftBeacon = BEACON.BLUE_YELLOW;
-            else leftBeacon = BEACON.YELLOW_BLUE;
+            if (maximumBlueX.y < maximumYellowX.y){
+                rightBeacon.setType(BEACON_TYPE.BLUE_YELLOW);
+                rightBeacon.getBottomBeaconPoint().x = (maximumBlueX.x + maximumYellowX.x)/2;
+                rightBeacon.getBottomBeaconPoint().y = maximumYellowX.y;
+            }
+            else{
+                rightBeacon.setType(BEACON_TYPE.YELLOW_BLUE);
+                rightBeacon.getBottomBeaconPoint().x = (maximumBlueX.x + maximumYellowX.x)/2;
+                rightBeacon.getBottomBeaconPoint().y = maximumBlueX.y;
+            }
         }
 
         if (Math.abs(maximumRedX.x - maximumYellowX.x) < BEACON_DETERMINATION_X_THRESHOLD){
-            if (maximumRedX.y < maximumYellowX.y) leftBeacon = BEACON.RED_YELLOW;
-            else leftBeacon = BEACON.YELLOW_RED;
+            if (maximumRedX.y < maximumYellowX.y){
+                rightBeacon.setType(BEACON_TYPE.RED_YELLOW);
+                rightBeacon.getBottomBeaconPoint().x = (maximumRedX.x + maximumYellowX.x)/2;
+                rightBeacon.getBottomBeaconPoint().y = maximumYellowX.y;
+            }
+            else{
+                rightBeacon.setType(BEACON_TYPE.YELLOW_RED);
+                rightBeacon.getBottomBeaconPoint().x = (maximumRedX.x + maximumYellowX.x)/2;
+                rightBeacon.getBottomBeaconPoint().y = maximumRedX.y;
+            }
         }
-        return leftBeacon;
+        return rightBeacon;
     }
 
     private Point getMinimumXFromBatches(ArrayList<Point> batches){

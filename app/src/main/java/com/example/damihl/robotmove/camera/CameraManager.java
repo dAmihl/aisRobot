@@ -143,7 +143,9 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     }
 
 
-
+    public Mat getMatrixHomography(){
+        return mHomography;
+    }
 
     public void computeHomography(){
         this.mHomography = HomographyManager.getInstance().getHomographyMatrix(mRgba);
@@ -157,7 +159,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
         }
     }
 
-    private boolean homographySet(){
+    public boolean homographySet(){
         return (mHomography != null && mHomography.size().area() > 0) ;
     }
 
