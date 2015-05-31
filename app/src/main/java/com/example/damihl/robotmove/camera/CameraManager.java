@@ -59,11 +59,11 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
 
 
     public Scalar GREEN_COLOR = new Scalar(107.78125, 255.0, 127.546875, 0.0);
-    public Scalar RED_COLOR = new Scalar(117.25, 108.796875, 74.75, 0.0);
+    public Scalar RED_COLOR = new Scalar(252.53125, 178.171875, 133.21875, 0.0);
     //public Scalar BLUE_COLOR = new Scalar(155.21875, 239.375, 96.609375, 0.0);
     // beim gerry
-    public Scalar BLUE_COLOR = new Scalar(140.859375, 144.53125, 196.4375, 0.0);
-    public Scalar YELLOW_COLOR = new Scalar(20.1875, 192.359375, 230.75, 0.0);
+    public Scalar BLUE_COLOR = new Scalar(151.21875, 179.5625, 169.53125, 0.0);
+    public Scalar YELLOW_COLOR = new Scalar(24.96875, 125.859375, 163.765625, 0.0);
 
 
     private int CAMERA_VIEW_WIDTH;
@@ -371,10 +371,10 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
                 LAST_FOUND_COLOR_POS_X = (int) centroid.x;
                 LAST_FOUND_COLOR_POS_Y = (int) centroid.y;
 
-                if (homographySet()){
+                /*if (homographySet()){
                     Point worldCoordsCM = HomographyManager.getInstance().getWorldCoordinatesInCentimeter(new Point(LAST_FOUND_COLOR_POS_X, LAST_FOUND_COLOR_POS_Y), mHomography);
                     Log.i(TAG, "Point at world: "+worldCoordsCM.x+"/"+worldCoordsCM.y);
-                }
+                }*/
                 //Log.i(TAG, "X: "+LAST_FOUND_COLOR_POS_X+"/ Y: "+LAST_FOUND_COLOR_POS_Y);
 
                 Double max = new Double(0);

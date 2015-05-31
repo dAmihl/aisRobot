@@ -421,11 +421,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void onButtonSelfLocateClick(View v){
 
-        /*if (!CameraManager.getInstance().homographySet()){
-            Log.e(TAG, "Homography not set yet!");
+        if (!CameraManager.getInstance().homographySet()){
+            Log.e("MainActivity", "Homography not set yet!");
             MainActivity.getInstance().showToastText("Homography not set yet!");
             return;
-        }*/
+        }
 
         CameraManager.getInstance().setBeaconDetectionOn(true);
     }
@@ -457,6 +457,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 ControlManager.getInstance().robotStop();
             }
         }
+    }
+
+    public void onButtonLocalizeAndCollectClick(View v){
+
+        if (!checkConnection()) return;
+
+        float targetX = 125   / 2.1f;
+        float targetY = 125    / 2.1f;
+
+        CameraManager.getInstance().setColor(CameraManager.getInstance().BLUE_COLOR);
+        TaskQueue queue = new TaskQueue();
+        queue.addAll(Task.getSelfLocalizationTaskQueue());
+        queue.addAll(Task.getNewCollectColorTaskQueue(8, 1, (int) targetX, (int) targetY));
+        TaskManager.getInstance().executeTaskQueue(queue);
     }
 
     /*

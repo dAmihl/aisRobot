@@ -18,46 +18,66 @@
             android:text="Drive Square"
             android:id="@+id/button"
             android:clickable="true"
+            android:textSize="10dp"
             android:onClick="onButtonDriveSquareClick"
             android:nestedScrollingEnabled="false"
             android:layout_below="@+id/btnStop"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="45dp"
+            android:layout_marginTop="10dp"
             android:layout_gravity="center_horizontal" />
 
         <Button
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search Blue Ball"
             android:id="@+id/btn_searchBlueBall"
             android:layout_gravity="center_horizontal"
             android:clickable="true"
+            android:textSize="10dp"
             android:onClick="onButtonSearchBlueBallClick" />
 
         <Button
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search Green Ball"
             android:id="@+id/btn_searchGreenBall"
             android:clickable="true"
+            android:textSize="10dp"
             android:onClick="onButtonSearchGreenBallClick"
             android:layout_gravity="center_horizontal" />
 
         <Button
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Collect color"
             android:id="@+id/btnCollectColor"
             android:layout_gravity="center_horizontal"
             android:clickable="true"
+            android:textSize="10dp"
             android:onClick="onButtonCollectColorsClick" />
 
         <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Localize and Collect"
+            android:id="@+id/btn_searchLocalizeAndCollect"
+            android:clickable="true"
+            android:textSize="10dp"
+            android:onClick="onButtonLocalizeAndCollectClick"
+            android:layout_gravity="center_horizontal" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search Red Ball"
             android:id="@+id/btn_searchRedBall"
             android:clickable="true"
+            android:textSize="10dp"
             android:onClick="onButtonSearchRedBallClick"
             android:layout_gravity="center_horizontal" />
 

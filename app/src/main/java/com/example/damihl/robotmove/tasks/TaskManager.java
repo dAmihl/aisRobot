@@ -3,6 +3,7 @@ package com.example.damihl.robotmove.tasks;
 import android.util.Log;
 
 import com.example.damihl.robotmove.MainActivity;
+import com.example.damihl.robotmove.camera.SelfLocalizationManager;
 import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
@@ -209,6 +210,14 @@ public class TaskManager implements EventCallback {
     @Override
     public synchronized void taskAborted(){
         Log.d("TASKMAN", "Task aborted");
+    }
+
+    @Override
+    public void positionDetermined() {
+        Log.d("TASKMAN", "Position now determined! Finishing task");
+        ControlManager.getInstance().robotStop();
+        OdometryManager.getInstance().setCurrentPosition(SelfLocalizationManager.getInstance().getRobotPosition());
+        CURRENT_STATE = STATE.NEXT_TASK;
     }
 
     private void obstacleAvoid(){

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.example.damihl.robotmove.MainActivity;
 import com.example.damihl.robotmove.camera.CameraManager;
+import com.example.damihl.robotmove.camera.SelfLocalizationManager;
 import com.example.damihl.robotmove.controls.ControlManager;
 import com.example.damihl.robotmove.obstacleavoidance.ObstacleAvoidManager;
 import com.example.damihl.robotmove.odometry.OdometryManager;
@@ -165,6 +166,34 @@ public class Task {
         return new Task(velR, velL, target, getStandardMoveTaskExecution(),getMoveWithoutObstacleAvoidTaskCondition());
     }
 
+
+    // turns slowly until position is determined
+    public static TaskQueue getSelfLocalizationTaskQueue(){
+
+        TaskQueue queue = new TaskQueue();
+
+        TaskCondition cond = new TaskCondition() {
+            @Override
+            public boolean taskFinishCondition() {
+                CameraManager.getInstance().setBeaconDetectionOn(true);
+                if (SelfLocalizationManager.getInstance().isRobotPositionDetermined()){
+                    TaskManager.getInstance().positionDetermined();
+                    return true;
+                };
+                return false;
+            }
+        };
+
+        TaskExecution exec = new TaskExecution() {
+            @Override
+            public void execution(Task t) {
+                ControlManager.getInstance().robotSetVelocity((byte) t.getVelocityLeft(), (byte) t.getVelocityRight());
+            }
+        };
+
+        queue.add(new Task(5,-5,new RobotPosVector(0,0,0),exec,cond));
+        return queue;
+    }
 
 
 

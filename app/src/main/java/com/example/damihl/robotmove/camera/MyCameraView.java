@@ -59,6 +59,7 @@ public class MyCameraView  extends JavaCameraView {
         public void setPreviewSize(Size res){
             Camera.Parameters params = mCamera.getParameters();
             params.setPreviewSize(res.width, res.height);
+           // params.setPreviewSize(800, 480);
             mCamera.setParameters(params);
         }
 

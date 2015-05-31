@@ -9,5 +9,6 @@ public interface EventCallback {
     public void obstacleFoundCallback();
     public void taskFinished();
     public void taskAborted();
+    public void positionDetermined();
 
 }

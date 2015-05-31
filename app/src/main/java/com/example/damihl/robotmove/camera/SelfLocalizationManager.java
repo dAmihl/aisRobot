@@ -3,6 +3,7 @@ package com.example.damihl.robotmove.camera;
 import com.example.damihl.robotmove.utils.RobotPosVector;
 import com.example.damihl.robotmove.utils.WorldPoint;
 
+import android.support.v4.util.Pair;
 import android.util.Log;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -11,6 +12,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -28,13 +30,15 @@ public class SelfLocalizationManager {
         return instance;
     }
 
+    private boolean MY_POSITION_DETERMINED = false;
+    private RobotPosVector robotPosition = new RobotPosVector(0,0,0);
 
 
     private int BEACON_DETERMINATION_X_THRESHOLD = 50;
 
 
     private int DIFFERENT_COLOR_BATCH_X_DISTANCE = 100;
-    private int COLOR_BATCH_MIN_SIZE = 20;
+    private int COLOR_BATCH_MIN_SIZE = 10;
     private int DIFFERENT_COLOR_BATCH_Y_DISTANCE = 100;
 
     private int numberColorBatchesBlue = 0;
@@ -84,13 +88,16 @@ public class SelfLocalizationManager {
         UNDEFINED // used for error handling
     }
 
+
+
     private List<MatOfPoint> filterTooSmallContours(List<MatOfPoint> contours){
+        List<MatOfPoint> newContours = new ArrayList<MatOfPoint>();
         for (MatOfPoint m: contours){
-            if (m.size().area() < COLOR_BATCH_MIN_SIZE){
-                contours.remove(m);
+            if (m.size().area() > COLOR_BATCH_MIN_SIZE){
+                newContours.add(m);
             }
         }
-        return contours;
+        return newContours;
     }
 
 
@@ -108,9 +115,9 @@ public class SelfLocalizationManager {
         Imgproc.drawContours(mRgba, contoursYellow, -1, CameraManager.getInstance().getContourColor());
 
 
-        filterTooSmallContours(contoursBlue);
-        filterTooSmallContours(contoursYellow);
-        filterTooSmallContours(contoursRed);
+        contoursBlue = filterTooSmallContours(contoursBlue);
+        contoursYellow = filterTooSmallContours(contoursYellow);
+        contoursRed = filterTooSmallContours(contoursRed);
 
         int numContoursBlue = contoursBlue.size();
         int numContoursYellow = contoursYellow.size();
@@ -179,30 +186,270 @@ public class SelfLocalizationManager {
         Beacon leftBeacon = determineLeftBeaconInScreen(batchesBlue, batchesRed, batchesYellow);
         Beacon rightBeacon = determineRightBeaconInScreen(batchesBlue, batchesRed, batchesYellow);
 
-        if (leftBeacon.getType() == BEACON_TYPE.UNDEFINED || rightBeacon.getType() == BEACON_TYPE.UNDEFINED){
+        if (leftBeacon.getType() == BEACON_TYPE.UNDEFINED || rightBeacon.getType() == BEACON_TYPE.UNDEFINED
+                || leftBeacon.getType() == rightBeacon.getType()){
+            if (leftBeacon.getType() == rightBeacon.getType()){
+                Log.i(TAG, "Left and Right beacon have the same type!");
+            }
+            if (leftBeacon.getType() == BEACON_TYPE.UNDEFINED){
+                Log.i(TAG, "Left beacon could not be determined!");
+            }else{
+                Log.i(TAG, "Left beacon determined: "+leftBeacon.getType());
+            }
+            if (rightBeacon.getType() == BEACON_TYPE.UNDEFINED){
+                Log.i(TAG, "Right beacon could not be determined!");
+            }else{
+                Log.i(TAG, "Right beacon determined: "+rightBeacon.getType());
+            }
             Log.i(TAG, "At least one beacon could not be determined!");
+            MY_POSITION_DETERMINED = false;
             return;
         }
 
-        Log.i(TAG, "BEACONS DETERMINED: "+leftBeacon+" AND "+rightBeacon);
+        BEACON_TYPE leftType = leftBeacon.getType();
+        BEACON_TYPE rightType = rightBeacon.getType();
 
+        int robotPosQuadrant = 0;
+
+        if (leftType == BEACON_TYPE.BLUE_RED && rightType == BEACON_TYPE.RED_YELLOW) { // +/+ quadrant
+            robotPosQuadrant = 1;
+            Log.i(TAG, "Quadrant of beacons is +X/+Y");
+        }else if (leftType == BEACON_TYPE.BLUE_YELLOW && rightType == BEACON_TYPE.BLUE_RED){ // -/+ quadrant
+            robotPosQuadrant = 2;
+            Log.i(TAG, "Quadrant of beacons is -X/+Y");
+        }else if (leftType == BEACON_TYPE.RED_BLUE && rightType == BEACON_TYPE.YELLOW_BLUE){ // -/- quadrant
+            robotPosQuadrant = 3;
+            Log.i(TAG, "Quadrant of beacons is -X/-Y");
+        }else if (leftType == BEACON_TYPE.YELLOW_RED && rightType == BEACON_TYPE.RED_BLUE){ // +/- quadrant
+            robotPosQuadrant = 4;
+            Log.i(TAG, "Quadrant of beacons is +X/-Y");
+        }else{
+            Log.d(TAG, "BEACON COMBINATION NOT POSSIBLE!");
+            MY_POSITION_DETERMINED = false;
+            return ;
+        }
+
+        Log.i(TAG, "BEACONS DETERMINED: "+leftBeacon.getType()+" AND "+rightBeacon.getType());
+
+        computeMyPosition(leftBeacon, rightBeacon, robotPosQuadrant);
+
+    }
+
+    private void computeMyPosition(Beacon leftBeacon, Beacon rightBeacon, int robotPosQuadrant){
         Point leftBottomBeaconPoint = leftBeacon.getBottomBeaconPoint();
         Point rightBottomBeaconPoint = rightBeacon.getBottomBeaconPoint();
 
         Log.i(TAG, "Left Beacon Point: "+leftBottomBeaconPoint.x+"/"+leftBottomBeaconPoint.y);
         Log.i(TAG, "Right Beacon Point: "+rightBottomBeaconPoint.x+"/"+rightBottomBeaconPoint.y);
 
+        WorldPoint leftBeaconWorldPoint = determineBeaconWorldPoint(leftBeacon.getType());
+        WorldPoint rightBeaconWorldPoint = determineBeaconWorldPoint(rightBeacon.getType());
 
         Point robocentricLeftBeaconPoint = HomographyManager.getInstance().getWorldCoordinatesInCentimeter(leftBottomBeaconPoint, CameraManager.getInstance().getMatrixHomography());
         Point robocentricRightBeaconPoint = HomographyManager.getInstance().getWorldCoordinatesInCentimeter(rightBottomBeaconPoint, CameraManager.getInstance().getMatrixHomography());
 
         WorldPoint robocentricLeftBeaconWorldPoint = new WorldPoint((float) robocentricLeftBeaconPoint.x, (float) robocentricLeftBeaconPoint.y);
+        WorldPoint robocentricRightBeaconWorldPoint = new WorldPoint((float) robocentricRightBeaconPoint.x, (float) robocentricRightBeaconPoint.y);
+
+        // switch to our coordinate system
+        //robocentricLeftBeaconWorldPoint.switchOrientation();
+        //robocentricRightBeaconWorldPoint.switchOrientation();
+
+        Log.i(TAG, "Robocentric Left Beacon Homography: "+robocentricLeftBeaconWorldPoint);
+        Log.i(TAG, "Robocentric Right Beacon Homography: "+robocentricRightBeaconWorldPoint);
+
+        float pos1X = Math.max(leftBeaconWorldPoint.getX(), robocentricLeftBeaconWorldPoint.getX()) - Math.min(leftBeaconWorldPoint.getX(), robocentricLeftBeaconWorldPoint.getX());
+        float pos1Y = Math.max(leftBeaconWorldPoint.getY(), robocentricLeftBeaconWorldPoint.getY()) - Math.min(leftBeaconWorldPoint.getY(), robocentricLeftBeaconWorldPoint.getY());
+        float pos2X = Math.max(rightBeaconWorldPoint.getX(), robocentricRightBeaconWorldPoint.getX()) - Math.min(rightBeaconWorldPoint.getX(), robocentricRightBeaconWorldPoint.getX());
+        float pos2Y = Math.max(rightBeaconWorldPoint.getY(), robocentricRightBeaconWorldPoint.getY()) - Math.min(rightBeaconWorldPoint.getY(), robocentricRightBeaconWorldPoint.getY());
 
 
+        WorldPoint myPos1 = new WorldPoint(pos1X, pos1Y);
+        WorldPoint myPos2 = new WorldPoint(pos2X, pos2Y);
+
+        double angleBetweenBeacons = WorldPoint.angleBetween(robocentricLeftBeaconWorldPoint, robocentricRightBeaconWorldPoint);
+        WorldPoint vGammaToLeftBeacon = new WorldPoint(robocentricLeftBeaconWorldPoint.getX() - robocentricRightBeaconWorldPoint.getX()
+                ,robocentricLeftBeaconWorldPoint.getY() - robocentricRightBeaconWorldPoint.getY());
+        WorldPoint vGammaToRobot = new WorldPoint(- robocentricRightBeaconWorldPoint.getX(), -robocentricRightBeaconWorldPoint.getY());
+        double angleGamma = WorldPoint.angleBetween(vGammaToRobot, vGammaToLeftBeacon);
+
+        double angleAlpha1 = WorldPoint.angleBetween(new WorldPoint(0,1), robocentricRightBeaconWorldPoint);
+
+        double robotAngle = angleAlpha1 + angleGamma;
+
+        //negative y quadrants
+        if (robotPosQuadrant == 3 || robotPosQuadrant == 4){
+            robotAngle += 180;
+            robotAngle = robotAngle % 360;
+        }
+
+        Log.i(TAG, "My Position in world from left: "+myPos1);
+        Log.i(TAG, "My Position in world from right: "+myPos2);
+        Log.i(TAG, "Angle Between Beacons: "+angleBetweenBeacons);
+        Log.i(TAG, "Angle GAMMA: "+angleGamma);
+        Log.i(TAG, "Angle ALPHA1: "+angleAlpha1);
+        Log.i(TAG, "Angle ROBOT: "+robotAngle);
+       // Log.i(TAG, "With a offset off ("+(myPos1.getX() - myPos2.getX())+"/"+(myPos1.getY() - myPos2.getY()));
+
+
+        WorldPoint myPos = myPos1;
+        // switch to robot orientation
+        myPos.switchOrientation();
+        float robotOrientationAngle = ((float) robotAngle - 90);
+        ///IMPORTANT! IT ALSO CAN BE HERE (90 - robotAngle) i am not sure about robots orientation here!
+        if (robotOrientationAngle < 0) robotOrientationAngle += 360;
+
+        MY_POSITION_DETERMINED = true;
+        robotPosition = new RobotPosVector(myPos.getX(), myPos.getY(), robotOrientationAngle);
+
+    }
+
+    private WorldPoint determineBeaconWorldPoint(BEACON_TYPE type){
+        WorldPoint result;
+
+        switch (type){
+            case BLUE_RED:
+                result = BEACON_BLUE_RED_POSITION; break;
+            case BLUE_YELLOW:
+                result = BEACON_BLUE_YELLOW_POSITION;break;
+            case RED_BLUE:
+                result = BEACON_RED_BLUE_POSITION;break;
+            case RED_YELLOW:
+                result = BEACON_RED_YELLOW_POSITION;break;
+            case YELLOW_BLUE:
+                result = BEACON_YELLOW_BLUE_POSITION; break;
+            case YELLOW_RED:
+                result = BEACON_YELLOW_RED_POSITION;break;
+            default:
+                result = new WorldPoint(0,0);break;
+        }
+        return result;
     }
 
     private Beacon determineLeftBeaconInScreen(ArrayList<Point> batchesBlue, ArrayList<Point> batchesRed, ArrayList<Point> batchesYellow){
         Beacon leftBeacon = new Beacon(BEACON_TYPE.UNDEFINED);
+
+
+        // each color has to appear once to determine a beacon
+        if (batchesBlue.size() == 0 || batchesRed.size() == 0 || batchesYellow.size() == 0){
+            leftBeacon.setType(BEACON_TYPE.UNDEFINED);
+            Log.i(TAG, "One batch is empty!");
+            //return rightBeacon;
+        }
+
+
+        ArrayList<Pair<Point, Point>> candidates = computeBeaconCandidatesFromBatches(batchesBlue, batchesRed, batchesYellow);
+        Log.i(TAG, "BEACON CANDIDATES LEFT: ");
+        if (candidates.size() == 0){
+            Log.i(TAG, "NO CANDIDATES FOUND!");
+            leftBeacon.setType(BEACON_TYPE.UNDEFINED);
+            return leftBeacon;
+        }
+
+
+        // the maximum candidate, so the one on most right in screenspace
+        Pair<Point, Point> minimumCandidate = candidates.get(0);
+        // since the x values of both points are in a given threshold, it is only necessary to check for one x value
+
+        for (int i = 1; i < candidates.size(); i++){
+            Log.i(TAG, "Candidate: ("+candidates.get(i).first.x+"/"+candidates.get(i).first.y+") and ("
+                    +candidates.get(i).second.x + "/"+ candidates.get(i).second.y+")");
+            if (minimumCandidate.first.x > candidates.get(i).first.x){
+                minimumCandidate = candidates.get(i);
+            }
+        }
+
+
+        // determine beacon type
+        if (batchesBlue.contains(minimumCandidate.first)){
+            if (batchesRed.contains(minimumCandidate.second)){
+                if (minimumCandidate.first.y < minimumCandidate.second.y){
+                    leftBeacon.setType(BEACON_TYPE.BLUE_RED);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    leftBeacon.setType(BEACON_TYPE.RED_BLUE);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+            if (batchesYellow.contains(minimumCandidate.second)){
+                if (minimumCandidate.first.y < minimumCandidate.second.y){
+                    leftBeacon.setType(BEACON_TYPE.BLUE_YELLOW);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    leftBeacon.setType(BEACON_TYPE.YELLOW_BLUE);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+        }
+
+        if (batchesRed.contains(minimumCandidate.first)){
+            if (batchesBlue.contains(minimumCandidate.second)){
+                if (minimumCandidate.first.y < minimumCandidate.second.y){
+                    leftBeacon.setType(BEACON_TYPE.RED_BLUE);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    leftBeacon.setType(BEACON_TYPE.BLUE_RED);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+            if (batchesYellow.contains(minimumCandidate.second)){
+                if (minimumCandidate.first.y < minimumCandidate.second.y){
+                    leftBeacon.setType(BEACON_TYPE.RED_YELLOW);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    leftBeacon.setType(BEACON_TYPE.YELLOW_RED);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+        }
+
+        if (batchesYellow.contains(minimumCandidate.first)){
+            if (batchesRed.contains(minimumCandidate.second)){
+                if (minimumCandidate.first.y < minimumCandidate.second.y){
+                    leftBeacon.setType(BEACON_TYPE.YELLOW_RED);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else {
+                    leftBeacon.setType(BEACON_TYPE.RED_YELLOW);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+            if (batchesBlue.contains(minimumCandidate.second)){
+                if (minimumCandidate.first.y < minimumCandidate.second.y){
+                    leftBeacon.setType(BEACON_TYPE.YELLOW_BLUE);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    leftBeacon.setType(BEACON_TYPE.BLUE_YELLOW);
+                    double x = (minimumCandidate.first.x + minimumCandidate.second.x) / 2;
+                    double y = (minimumCandidate.first.y + minimumCandidate.second.y) / 2;
+                    leftBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+        }
+
+        // old method
+        /*Beacon leftBeacon = new Beacon(BEACON_TYPE.UNDEFINED);
 
         Point minimumBlueX = getMinimumXFromBatches(batchesBlue);
         Point minimumRedX = getMinimumXFromBatches(batchesRed);
@@ -250,7 +497,7 @@ public class SelfLocalizationManager {
                 leftBeacon.getBottomBeaconPoint().x = (minimumRedX.x + minimumYellowX.x)/2;
                 leftBeacon.getBottomBeaconPoint().y = minimumRedX.y;
             }
-        }
+        }*/
         return leftBeacon;
     }
 
@@ -258,6 +505,128 @@ public class SelfLocalizationManager {
     private Beacon determineRightBeaconInScreen(ArrayList<Point> batchesBlue, ArrayList<Point> batchesRed, ArrayList<Point> batchesYellow){
         Beacon rightBeacon = new Beacon(BEACON_TYPE.UNDEFINED);
 
+
+        // each color has to appear once to determine a beacon
+        if (batchesBlue.size() == 0 || batchesRed.size() == 0 || batchesYellow.size() == 0){
+            rightBeacon.setType(BEACON_TYPE.UNDEFINED);
+            Log.i(TAG, "One batch is empty!");
+            //return rightBeacon;
+        }
+
+
+        ArrayList<Pair<Point, Point>> candidates = computeBeaconCandidatesFromBatches(batchesBlue, batchesRed, batchesYellow);
+        Log.i(TAG, "BEACON CANDIDATES RIGHT: ");
+        if (candidates.size() == 0){
+            Log.i(TAG, "NO CANDIDATES FOUND!");
+            rightBeacon.setType(BEACON_TYPE.UNDEFINED);
+            return rightBeacon;
+        }
+
+        // the maximum candidate, so the one on most right in screenspace
+        Pair<Point, Point> maximumCandidate = candidates.get(0);
+        // since the x values of both points are in a given threshold, it is only necessary to check for one x value
+
+        for (int i = 1; i < candidates.size(); i++){
+            Log.i(TAG, "Candidate: ("+candidates.get(i).first.x+"/"+candidates.get(i).first.y+") and ("
+            +candidates.get(i).second.x + "/"+ candidates.get(i).second.y+")");
+            if (maximumCandidate.first.x < candidates.get(i).first.x){
+                maximumCandidate = candidates.get(i);
+            }
+        }
+
+
+
+
+        // determine beacon type
+        if (batchesBlue.contains(maximumCandidate.first)){
+            if (batchesRed.contains(maximumCandidate.second)){
+                if (maximumCandidate.first.y < maximumCandidate.second.y){
+                    rightBeacon.setType(BEACON_TYPE.BLUE_RED);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    rightBeacon.setType(BEACON_TYPE.RED_BLUE);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+            if (batchesYellow.contains(maximumCandidate.second)){
+                if (maximumCandidate.first.y < maximumCandidate.second.y){
+                    rightBeacon.setType(BEACON_TYPE.BLUE_YELLOW);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    rightBeacon.setType(BEACON_TYPE.YELLOW_BLUE);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+        }
+
+        if (batchesRed.contains(maximumCandidate.first)){
+            if (batchesBlue.contains(maximumCandidate.second)){
+                if (maximumCandidate.first.y < maximumCandidate.second.y){
+                    rightBeacon.setType(BEACON_TYPE.RED_BLUE);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    rightBeacon.setType(BEACON_TYPE.BLUE_RED);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+            if (batchesYellow.contains(maximumCandidate.second)){
+                if (maximumCandidate.first.y < maximumCandidate.second.y){
+                    rightBeacon.setType(BEACON_TYPE.RED_YELLOW);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    rightBeacon.setType(BEACON_TYPE.YELLOW_RED);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+        }
+
+        if (batchesYellow.contains(maximumCandidate.first)){
+            if (batchesRed.contains(maximumCandidate.second)){
+                if (maximumCandidate.first.y < maximumCandidate.second.y){
+                    rightBeacon.setType(BEACON_TYPE.YELLOW_RED);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    rightBeacon.setType(BEACON_TYPE.RED_YELLOW);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+            if (batchesBlue.contains(maximumCandidate.second)){
+                if (maximumCandidate.first.y < maximumCandidate.second.y){
+                    rightBeacon.setType(BEACON_TYPE.YELLOW_BLUE);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }else{
+                    rightBeacon.setType(BEACON_TYPE.BLUE_YELLOW);
+                    double x = (maximumCandidate.first.x + maximumCandidate.second.x) / 2;
+                    double y = (maximumCandidate.first.y + maximumCandidate.second.y) / 2;
+                    rightBeacon.setBottomBeaconPoint(new Point(x, y));
+                }
+            }
+        }
+
+        // old method
+      /*
         Point maximumBlueX = getMaximumXFromBatches(batchesBlue);
         Point maximumRedX = getMaximumXFromBatches(batchesRed);
         Point maximumYellowX = getMaximumXFromBatches(batchesYellow);
@@ -304,10 +673,51 @@ public class SelfLocalizationManager {
                 rightBeacon.getBottomBeaconPoint().x = (maximumRedX.x + maximumYellowX.x)/2;
                 rightBeacon.getBottomBeaconPoint().y = maximumRedX.y;
             }
-        }
+        }*/
         return rightBeacon;
     }
 
+
+    private ArrayList<Pair<Point, Point>> computeBeaconCandidatesFromBatches(ArrayList<Point> batchesBlue, ArrayList<Point> batchesRed, ArrayList<Point> batchesYellow){
+        ArrayList<Pair<Point, Point>> candidates = new ArrayList<>();
+
+        ArrayList<Point> tmpBlue = new ArrayList<>();
+        ArrayList<Point> tmpRed = new ArrayList<>();
+        ArrayList<Point> tmpYellow = new ArrayList<>();
+
+        tmpBlue.addAll(batchesBlue);
+        tmpRed.addAll(batchesRed);
+        tmpYellow.addAll(batchesYellow);
+
+
+        // determine all batch candidates for beacons
+        for (Point b: batchesBlue){
+            for (Point r: batchesRed){
+                if (Math.abs(b.x - r.x) < BEACON_DETERMINATION_X_THRESHOLD){
+                    candidates.add(new Pair<Point, Point>(b, r));
+                }
+            }
+            for (Point y: batchesYellow){
+                if (Math.abs(b.x - y.x) < BEACON_DETERMINATION_X_THRESHOLD){
+                    candidates.add(new Pair<Point, Point>(b, y));
+                }
+            }
+        }
+
+        for (Point r: batchesRed){
+            for (Point y: batchesYellow){
+                if (Math.abs(r.x - y.x) < BEACON_DETERMINATION_X_THRESHOLD){
+                    candidates.add(new Pair<Point, Point>(r, y));
+                }
+            }
+        }
+        return candidates;
+    }
+
+
+    /*
+    used for old determination methods
+     */
     private Point getMinimumXFromBatches(ArrayList<Point> batches){
         if (batches.isEmpty()) return null;
          Point result = batches.get(0);
@@ -390,20 +800,13 @@ public class SelfLocalizationManager {
 
 
 
+    public boolean isRobotPositionDetermined(){
+        return MY_POSITION_DETERMINED;
+    }
 
 
-    public RobotPosVector computeMyLocation(){
-        RobotPosVector myPos = new RobotPosVector(0,0,0);
-
-        int numContoursBlue = CameraManager.getInstance().countNumberOfContours(CameraManager.getInstance().BLUE_COLOR);
-        int numContoursRed = CameraManager.getInstance().countNumberOfContours(CameraManager.getInstance().RED_COLOR);
-        int numContoursYellow = CameraManager.getInstance().countNumberOfContours(CameraManager.getInstance().YELLOW_COLOR);
-
-
-
-
-        // compute the stuff
-        return myPos;
+    public RobotPosVector getRobotPosition(){
+        return robotPosition;
     }
 
 
