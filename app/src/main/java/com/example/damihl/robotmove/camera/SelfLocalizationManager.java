@@ -258,25 +258,57 @@ public class SelfLocalizationManager {
         Log.i(TAG, "Robocentric Left Beacon Homography: "+robocentricLeftBeaconWorldPoint);
         Log.i(TAG, "Robocentric Right Beacon Homography: "+robocentricRightBeaconWorldPoint);
 
-        float pos1X = Math.max(leftBeaconWorldPoint.getX(), robocentricLeftBeaconWorldPoint.getX()) - Math.min(leftBeaconWorldPoint.getX(), robocentricLeftBeaconWorldPoint.getX());
+        /*float pos1X = Math.max(leftBeaconWorldPoint.getX(), robocentricLeftBeaconWorldPoint.getX()) - Math.min(leftBeaconWorldPoint.getX(), robocentricLeftBeaconWorldPoint.getX());
         float pos1Y = Math.max(leftBeaconWorldPoint.getY(), robocentricLeftBeaconWorldPoint.getY()) - Math.min(leftBeaconWorldPoint.getY(), robocentricLeftBeaconWorldPoint.getY());
         float pos2X = Math.max(rightBeaconWorldPoint.getX(), robocentricRightBeaconWorldPoint.getX()) - Math.min(rightBeaconWorldPoint.getX(), robocentricRightBeaconWorldPoint.getX());
         float pos2Y = Math.max(rightBeaconWorldPoint.getY(), robocentricRightBeaconWorldPoint.getY()) - Math.min(rightBeaconWorldPoint.getY(), robocentricRightBeaconWorldPoint.getY());
 
 
         WorldPoint myPos1 = new WorldPoint(pos1X, pos1Y);
-        WorldPoint myPos2 = new WorldPoint(pos2X, pos2Y);
+        WorldPoint myPos2 = new WorldPoint(pos2X, pos2Y);*/
 
         double angleBetweenBeacons = WorldPoint.angleBetween(robocentricLeftBeaconWorldPoint, robocentricRightBeaconWorldPoint);
         WorldPoint vGammaToLeftBeacon = new WorldPoint(robocentricLeftBeaconWorldPoint.getX() - robocentricRightBeaconWorldPoint.getX()
                 ,robocentricLeftBeaconWorldPoint.getY() - robocentricRightBeaconWorldPoint.getY());
+        WorldPoint vBetaToRightBeacon = new WorldPoint(robocentricRightBeaconWorldPoint.getX() - robocentricLeftBeaconWorldPoint.getX(),
+                robocentricRightBeaconWorldPoint.getY() - robocentricRightBeaconWorldPoint.getY());
         WorldPoint vGammaToRobot = new WorldPoint(- robocentricRightBeaconWorldPoint.getX(), -robocentricRightBeaconWorldPoint.getY());
+        WorldPoint vBetaToRobot = new WorldPoint(- robocentricLeftBeaconWorldPoint.getX(), - robocentricLeftBeaconWorldPoint.getY());
         double angleGamma = WorldPoint.angleBetween(vGammaToRobot, vGammaToLeftBeacon);
+        double angleBeta = WorldPoint.angleBetween(vBetaToRobot, vBetaToRightBeacon);
 
         double angleAlpha1 = WorldPoint.angleBetween(new WorldPoint(0,1), robocentricRightBeaconWorldPoint);
 
+        double angleBeta2 = 180 - Math.toDegrees(angleBeta);
+        angleBeta2 = Math.toRadians(angleBeta2);
+
+        double angleGamma2 = 180 - Math.toDegrees(angleGamma);
+        angleGamma2 = Math.toRadians(angleGamma2);
+
         double robotAngle = angleAlpha1 + angleGamma;
 
+        WorldPoint worldVectorLeftBeaconToRobot = new WorldPoint((float)(WorldPoint.length(vBetaToRobot) * Math.sin(angleBeta)),
+                (float)(WorldPoint.length(vBetaToRobot) * Math.cos(angleBeta)));
+        WorldPoint worldVectorRightBeaconToRobot = new WorldPoint((float)(WorldPoint.length(vGammaToRobot) * Math.sin(angleGamma)),
+                (float)(WorldPoint.length(vGammaToRobot) * Math.cos(angleGamma)));
+
+        Log.i(TAG, "Vector Left Beacon to Robot: "+worldVectorLeftBeaconToRobot.getX()+"/"+worldVectorLeftBeaconToRobot.getY());
+        Log.i(TAG, "Vector Right Beacon to Robot: "+worldVectorRightBeaconToRobot.getX()+"/"+worldVectorRightBeaconToRobot.getY());
+
+        WorldPoint myPos1 = new WorldPoint(leftBeaconWorldPoint.getX() + worldVectorLeftBeaconToRobot.getX(),
+                leftBeaconWorldPoint.getY()+ worldVectorLeftBeaconToRobot.getY()
+                );
+        WorldPoint myPos2 = new WorldPoint(rightBeaconWorldPoint.getX() + worldVectorRightBeaconToRobot.getX(),
+                rightBeaconWorldPoint.getY()+ worldVectorRightBeaconToRobot.getY()
+        );
+
+       /* WorldPoint myPos1 = new WorldPoint(Math.max(leftBeaconWorldPoint.getX(), worldVectorLeftBeaconToRobot.getX()) - Math.min(leftBeaconWorldPoint.getX(), worldVectorLeftBeaconToRobot.getX()),
+                Math.max(leftBeaconWorldPoint.getY(), worldVectorLeftBeaconToRobot.getY()) - Math.min(leftBeaconWorldPoint.getY(), worldVectorLeftBeaconToRobot.getY()
+                ));
+        WorldPoint myPos2 = new WorldPoint(Math.max(rightBeaconWorldPoint.getX(), worldVectorRightBeaconToRobot.getX()) - Math.min(rightBeaconWorldPoint.getX(), worldVectorRightBeaconToRobot.getX()),
+                Math.max(rightBeaconWorldPoint.getY(), worldVectorRightBeaconToRobot.getY()) - Math.min(rightBeaconWorldPoint.getY(), worldVectorRightBeaconToRobot.getY()
+                ));
+*/
         //negative y quadrants
         if (robotPosQuadrant == 3 || robotPosQuadrant == 4){
             robotAngle += 180;
@@ -284,7 +316,7 @@ public class SelfLocalizationManager {
         }
 
         Log.i(TAG, "My Position in world from left: "+myPos1);
-        Log.i(TAG, "My Position in world from right: "+myPos2);
+        Log.i(TAG, "My Position in world: "+myPos2);
         Log.i(TAG, "Angle Between Beacons: "+angleBetweenBeacons);
         Log.i(TAG, "Angle GAMMA: "+angleGamma);
         Log.i(TAG, "Angle ALPHA1: "+angleAlpha1);
@@ -292,7 +324,7 @@ public class SelfLocalizationManager {
        // Log.i(TAG, "With a offset off ("+(myPos1.getX() - myPos2.getX())+"/"+(myPos1.getY() - myPos2.getY()));
 
 
-        WorldPoint myPos = myPos1;
+        WorldPoint myPos = new WorldPoint((myPos1.getX() + myPos2.getX())/2, (myPos1.getY() + myPos2.getY())/2);
         // switch to robot orientation
         myPos.switchOrientation();
         float robotOrientationAngle = ((float) robotAngle - 90);
@@ -300,7 +332,7 @@ public class SelfLocalizationManager {
         if (robotOrientationAngle < 0) robotOrientationAngle += 360;
 
         MY_POSITION_DETERMINED = true;
-        robotPosition = new RobotPosVector(myPos.getX(), myPos.getY(), robotOrientationAngle);
+        robotPosition = new RobotPosVector(myPos.getX()/2.1f, myPos.getY()/2.1f, robotOrientationAngle);
 
     }
 

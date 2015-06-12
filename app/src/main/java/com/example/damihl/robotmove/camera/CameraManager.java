@@ -58,12 +58,14 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     private boolean BEACON_DETECTION_ON = false;
 
 
-    public Scalar GREEN_COLOR = new Scalar(107.78125, 255.0, 127.546875, 0.0);
-    public Scalar RED_COLOR = new Scalar(252.53125, 178.171875, 133.21875, 0.0);
+    public Scalar GREEN_COLOR = new Scalar(113.140625, 255.0, 58.6875, 0.0);
+    public Scalar RED_COLOR = new Scalar(2.265625, 214.796875, 190.765625, 0.0);
     //public Scalar BLUE_COLOR = new Scalar(155.21875, 239.375, 96.609375, 0.0);
     // beim gerry
-    public Scalar BLUE_COLOR = new Scalar(151.21875, 179.5625, 169.53125, 0.0);
-    public Scalar YELLOW_COLOR = new Scalar(24.96875, 125.859375, 163.765625, 0.0);
+    public Scalar BLUE_COLOR = new Scalar(146.828125, 209.875, 96.015625, 0.0);
+    public Scalar YELLOW_COLOR = new Scalar(31.328125, 222.890625, 160.53125, 0.0);
+    public Scalar ORANGE_COLOR = new Scalar(9.265625, 225.078125, 210.46875, 0.0);
+
 
 
     private int CAMERA_VIEW_WIDTH;

@@ -45,7 +45,7 @@ public class WorldPoint {
         return angle;
     }
 
-    private static double length(WorldPoint p){
+    public static double length(WorldPoint p){
         double length = Math.sqrt((p.getX() * p.getX()) + (p.getY() * p.getY()));
         return length;
     }

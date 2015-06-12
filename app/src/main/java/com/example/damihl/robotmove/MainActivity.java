@@ -382,15 +382,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void onButtonSearchBlueBallClick(View v){
         if (checkConnection()){
-            CameraManager.getInstance().setColor(CameraManager.getInstance().BLUE_COLOR);
+            CameraManager.getInstance().setColor(CameraManager.getInstance().ORANGE_COLOR);
             TaskManager.getInstance().executeTaskQueue(Task.getNewFindColorTaskQueue());
         }
     }
 
     public void onButtonCollectColorsClick(View v){
         if (checkConnection()){
-            CameraManager.getInstance().setColor(CameraManager.getInstance().BLUE_COLOR);
-            TaskManager.getInstance().executeTaskQueue(Task.getNewCollectColorTaskQueue(1, 1, 0,0));
+            int targetX = 0;
+            int targetY = 0;
+            CameraManager.getInstance().setColor(CameraManager.getInstance().GREEN_COLOR);
+            TaskManager.getInstance().executeTaskQueue(Task.getNewCollectColorTaskQueue(1, 1, (int) (targetX/2.1),(int) (targetY/2.1)));
         }
     }
 
