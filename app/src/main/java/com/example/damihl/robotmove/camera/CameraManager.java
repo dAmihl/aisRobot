@@ -64,8 +64,9 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     // beim gerry
     public Scalar BLUE_COLOR = new Scalar(146.828125, 209.875, 96.015625, 0.0);
     public Scalar YELLOW_COLOR = new Scalar(31.328125, 222.890625, 160.53125, 0.0);
-    public Scalar ORANGE_COLOR = new Scalar(9.265625, 225.078125, 210.46875, 0.0);
-
+    public Scalar ORANGE_COLOR = new Scalar(7.09375, 235.84375, 141.578125, 0.0);
+    public Scalar BLUE_SMALL_COLOR = new Scalar(146.53125, 196.875, 209.453125, 0.0);
+    public Scalar PURPLE_SMALL_COLOR = new Scalar(239.4375, 211.921875, 54.40625, 0.0);
 
 
     private int CAMERA_VIEW_WIDTH;
@@ -98,7 +99,7 @@ public class CameraManager implements CameraBridgeViewBase.CvCameraViewListener2
     private static int SCREEN_MID_Y = 200;
     private static int SCREEN_MID_OFFSET = 20;
 
-    private static int SCREEN_IN_RANGE_RADIUS = 65;
+    private static int SCREEN_IN_RANGE_RADIUS = 45;
     private static int SCREEN_IN_RANGE_Y_VALUE = 280;
 
 

@@ -45,6 +45,7 @@ public class TaskManager implements EventCallback {
     private STATE CURRENT_STATE;
 
     private Task currentTask;
+    public Task pausedTask;
     private TaskQueue taskQueue = new TaskQueue();
     private TaskThread taskThread;
     private TargetStack targetStack;
@@ -177,7 +178,7 @@ public class TaskManager implements EventCallback {
 
     @Override
     public synchronized void obstacleFoundCallback() {
-        RobotPosVector oldTarget = OdometryManager.getInstance().getTargetPosition();
+        RobotPosVector oldTarget = currentTask.getTarget();
         targetStack.push(oldTarget);
         CURRENT_STATE = STATE.OBSTACLE_FOUND;
     }
@@ -225,6 +226,7 @@ public class TaskManager implements EventCallback {
         MainActivity.getInstance().threadSafeDebugOutput("Obstacle now gets avoided maybe?!");
         ControlManager.getInstance().robotStop();
         ObstacleAvoidManager.getInstance().avoidObstacleBug0();
+        CURRENT_STATE = STATE.NEXT_TASK;
     }
 
     public RobotPosVector getNextTarget(){

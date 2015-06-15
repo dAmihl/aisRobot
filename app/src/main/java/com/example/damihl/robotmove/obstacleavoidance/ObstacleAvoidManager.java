@@ -150,13 +150,19 @@ public class ObstacleAvoidManager {
     }
 
     public void avoidObstacleBug0(){
-        //RobotPosVector toTarget = TaskManager.getInstance().getNextTarget();
-        RobotPosVector toTarget = TaskManager.getInstance().moveToTarget;
-        if (toTarget == null) return;
+        RobotPosVector toTarget = TaskManager.getInstance().getNextTarget();
+        //RobotPosVector toTarget = OdometryManager.getInstance().getTargetPosition();
+        if (toTarget == null){
+            MainActivity.getInstance().threadSafeDebugOutput("Obstalce avoid no old target!");
+            TaskQueue queue = new TaskQueue();
+            queue.addAll(Task.getNewMoveByRightTaskQueue(Task.STANDARD_MOVE_SPEED,Task.STANDARD_MOVE_SPEED,20));
+            TaskManager.getInstance().executeTaskQueue(queue);
+            return;
+        }
         MainActivity.getInstance().threadSafeDebugOutput("Bug0 starting");
         TaskQueue queue = new TaskQueue();
-        queue.addAll(Task.getNewMoveByRightTaskQueue(15,15,20));
-        queue.addAll(Task.getNewMoveToTaskQueue(15,15,(int) toTarget.x, (int) toTarget.y));
+        queue.addAll(Task.getNewMoveByRightTaskQueue(Task.STANDARD_MOVE_SPEED,Task.STANDARD_MOVE_SPEED,20));
+        queue.addAll(Task.getNewMoveToTaskQueue(Task.STANDARD_MOVE_SPEED,Task.STANDARD_MOVE_SPEED,(int) toTarget.x, (int) toTarget.y));
         TaskManager.getInstance().executeTaskQueue(queue);
     }
 

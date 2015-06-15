@@ -391,8 +391,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if (checkConnection()){
             int targetX = 0;
             int targetY = 0;
-            CameraManager.getInstance().setColor(CameraManager.getInstance().GREEN_COLOR);
-            TaskManager.getInstance().executeTaskQueue(Task.getNewCollectColorTaskQueue(1, 1, (int) (targetX/2.1),(int) (targetY/2.1)));
+            CameraManager.getInstance().setColor(CameraManager.getInstance().PURPLE_SMALL_COLOR);
+            TaskManager.getInstance().executeTaskQueue(Task.getNewCollectColorTaskQueue(8, 1, (int) (targetX/2.1),(int) (targetY/2.1)));
         }
     }
 
